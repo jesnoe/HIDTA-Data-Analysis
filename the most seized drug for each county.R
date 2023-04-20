@@ -102,7 +102,7 @@ most_seized_drug_reduced_map2 %>%
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_reduced2
-ggsave(paste("most seized drug (reduced2) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_reduced2, width=23, height=15, units="cm")
+# ggsave(paste("most seized drug (reduced2) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_reduced2, width=23, height=15, units="cm")
 
 ## Regroup by drug classifications from https://www.addictioncenter.com/drugs/drug-classifications/
 drugs <- seizures$Drug %>% unique %>% sort
@@ -150,7 +150,12 @@ most_seized_drug_class_map <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12,
 most_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug)) +
   geom_polygon(color = "#000000", linewidth = .05) +
   labs(fill = "Drug", title="Most Seized Drugs") + 
-  scale_fill_viridis_d(na.value="white") +
+  scale_fill_manual(values= c("Cannabinoids"="green",
+                              "Depressants"="blue",
+                              "Stimulants"="red",
+                              "Hallucinogens"="orange",
+                              "Other"="purple"),
+                    na.value="white") +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class
@@ -159,7 +164,12 @@ most_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fi
 most_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug, alpha=Stimulants_prop)) +
   geom_polygon(color = "#000000", linewidth = .05) +
   labs(fill = "Drug", title="Most Seized Drugs") + 
-  scale_fill_viridis_d(na.value="white") +
+  scale_fill_manual(values= c("Cannabinoids"="green",
+                              "Depressants"="blue",
+                              "Stimulants"="red",
+                              "Hallucinogens"="orange",
+                              "Other"="purple"),
+                    na.value="white") +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class_alpha
@@ -177,12 +187,77 @@ second_seized_drug_class_map <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 1
 second_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=second_seized_drug)) +
   geom_polygon(color = "#000000", linewidth = .05) +
   labs(fill = "Drug", title="Second-Most Seized Drugs") + 
-  scale_fill_viridis_d(na.value="white") +
+  scale_fill_manual(values= c("Cannabinoids"="green",
+                              "Depressants"="blue",
+                              "Stimulants"="red",
+                              "Hallucinogens"="orange",
+                              "Other"="purple"),
+                    na.value="white") +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> second_seized_drug_ggplot_class
 # ggsave(paste("second seized drug (classified) for each county during 2018-2021.png", sep=""), second_seized_drug_ggplot_class, width=22, height=15, units="cm")
 
+ # Without Cannabinoids
+most_seized_drug_class3 <- seizure_counts_class %>% 
+  filter(Drug != "Cannabinoids") %>% 
+  group_by(state_name, county) %>% 
+  summarise(Stimulants_prop=ifelse("Stimulants" %in% Drug, count[Drug == "Stimulants"]/sum(count), 0.001), 
+            most_seized_drug=Drug[which.max(count)],
+            count=max(count))
+
+most_seized_drug_class3$most_seized_drug <- ifelse(most_seized_drug_class3$most_seized_drug %in% c("Depressants", "Stimulants", "Hallucinogens"),
+                                                   most_seized_drug_class3$most_seized_drug, "Other")
+
+most_seized_drug_class_map3 <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]), most_seized_drug_class3, by=c("state_name", "county"))
+most_seized_drug_class_map3 %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Most Seized Drugs") + 
+  scale_fill_manual(values= c("Depressants"="blue",
+                              "Stimulants"="red",
+                              "Hallucinogens"="orange",
+                              "Other"="purple"),
+                    na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class
+# ggsave(paste("most seized drug (classified, without Cannabinoids) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_class, width=22, height=15, units="cm")
+
+most_seized_drug_class_map3 %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug, alpha=Stimulants_prop)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Most Seized Drugs") + 
+  scale_fill_manual(values= c("Depressants"="blue",
+                    "Stimulants"="red",
+                    "Hallucinogens"="orange",
+                    "Other"="purple"),
+                    na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class_alpha
+# ggsave(paste("most seized drug (classified alpha, without Cannabinoids) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_class_alpha, width=22, height=15, units="cm")
+
+second_seized_drug_class2 <- seizure_counts_class %>% 
+  filter(Drug != "Cannabinoids") %>% 
+  group_by(state_name, county) %>% 
+  arrange(count, .by_group=T) %>% 
+  summarise(second_seized_drug=Drug[ifelse(n()-1 > 0, n()-1, NA)],
+            count=ifelse(n()-1 > 0, count[n()-1], NA))
+second_seized_drug_class2$second_seized_drug <- ifelse(second_seized_drug_class2$second_seized_drug %in% c("Depressants", "Stimulants", "Hallucinogens"),
+                                                      second_seized_drug_class2$second_seized_drug, "Other")
+
+second_seized_drug_class_map2 <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]), second_seized_drug_class2, by=c("state_name", "county"))
+second_seized_drug_class_map2 %>% ggplot(mapping = aes(long, lat, group = group, fill=second_seized_drug)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Second-Most Seized Drugs") + 
+  scale_fill_manual(values= c("Depressants"="blue",
+                              "Stimulants"="red",
+                              "Hallucinogens"="orange",
+                              "Other"="purple"),
+                    na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> second_seized_drug_ggplot_class
+# ggsave(paste("second seized drug (classified, without Cannabinoids) for each county during 2018-2021.png", sep=""), second_seized_drug_ggplot_class, width=22, height=15, units="cm")
 
 ## Correlation Cannabinoids vs. Crack / Cocaine / Meth
 seizure_counts_for_cor <- seizure_counts
@@ -208,6 +283,8 @@ seizure_counts_meth <- seizure_counts_meth %>%
   pivot_wider(names_from="Drug", values_from="count") %>% 
   replace_na(list(Meth=0, Ice=0))
 seizure_counts_meth
+
+cor(seizure_counts_meth[,3:4])
 
 seizure_counts_meth[,3:4] %>%
   group_by(Ice, Meth) %>% 
@@ -245,3 +322,6 @@ seizure_counts_meth_map2 %>% ggplot(mapping = aes(long, lat, group = group, fill
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
+
+seizure_counts_meth %>% arrange(desc(Meth))
+seizure_counts_meth %>% arrange(desc(Ice))
