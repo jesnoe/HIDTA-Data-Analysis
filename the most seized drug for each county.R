@@ -113,7 +113,7 @@ Cocaine <- c("Crack", grep("Cocaine", drugs, value=T)) # Should include Coca lea
 Meth <- c("Methamphetamine", "Ice", "Amphetamine", "Methamphetamine in solution",
           "Meth precursor: Ephedrine hydrochloride", "Methamphetamine Oil", "Meth Precursor Chemicals",
           "Methamphetamine Tablet", "Ephedrine", "Pseudoephedrine", "MDMA")
-Opioids <- c("Fentanyl", "Heroin", "Opiates", grep("Opium", drugs, value=T), "Oxycodone")
+Opioids <- c("Fentanyl", grep("Heroin", drugs, value=T), "Opiates", grep("Opium", drugs, value=T), "Oxycodone")
 
   # by effect
 Depressants <- c(Barbiturates, "GHB", "Ketamine", "Morphine", Opioids)
@@ -121,22 +121,127 @@ Stimulants <- c(Cocaine, "Dexedrine", "Ephedrine", Meth)
 Hallucinogens <- c("LSD", "PCP", "Psilocybin")
 
 seizures_class <- seizures
-seizures_class$Drug <- ifelse(seizures_class$Drug %in% c("Cocaine", "Cocaine, Powder", "Cocaine Base",
-                                                                     "Cocaine precursor", "Coca Leaves", "Cocaine metabolite"),
-                                    "Cocaine", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Barbiturates, "Barbiturates", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Benzodiazepines, "Benzodiazepines", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Cannabinoids, "Cannabinoids", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Depressants, "Depressants", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Stimulants, "Stimulants", seizures_class$Drug)
+seizures_class$Drug <- ifelse(seizures_class$Drug %in% Hallucinogens, "Hallucinogens", seizures_class$Drug)
 
-seizures_class$Drug <- ifelse(seizures_class$Drug %in% c("Methamphetamine", "Ice", "Amphetamine", "Methamphetamine in solution",
-                                                                     "Meth precursor: Ephedrine hydrochloride", "Methamphetamine Oil", "Meth Precursor Chemicals",
-                                                                     "Methamphetamine Tablet", "Ephedrine", "Pseudoephedrine"),
-                                    "Methamphetamine", seizures_class$Drug)
-seizures_class$Drug <- ifelse(grepl("Marijuana", seizures_class$Drug),
-                                    "Marijuana", seizures_class$Drug)
-seizures_class$Drug <- ifelse(grepl("THC", seizures_class$Drug),
-                                    "Marijuana", seizures_class$Drug)
-seizures_class$Drug <- ifelse(grepl("Heroin", seizures_class$Drug),
-                                    "Heroin", seizures_class$Drug)
-
-seizure_counts_reduced <- seizures_reduced %>% 
-  filter(Unit=="Kg") %>% 
+seizure_counts_class <- seizures_class %>% 
   group_by(state_name, county, Drug) %>%
   summarise(count=sum(Quantity > 0))
+
+most_seized_drug_class <- seizure_counts_class %>% 
+  group_by(state_name, county) %>% 
+  summarise(Stimulants_prop=ifelse("Stimulants" %in% Drug, count[Drug == "Stimulants"]/sum(count), 0.001), 
+            most_seized_drug=Drug[which.max(count)],
+            count=max(count))
+most_seized_drug_class$most_seized_drug %>% unique %>% sort
+
+most_seized_drug_class %>% select(-Stimulants_prop) %>% 
+  filter(!(most_seized_drug %in% c("Cannabinoids", "Depressants", "Stimulants", "Hallucinogens"))) %>% arrange(desc(count))
+
+most_seized_drug_class2 <- most_seized_drug_class
+most_seized_drug_class2$most_seized_drug <- ifelse(most_seized_drug_class2$most_seized_drug %in% c("Cannabinoids", "Depressants", "Stimulants", "Hallucinogens"),
+                                                   most_seized_drug_class2$most_seized_drug, "Other")
+
+most_seized_drug_class_map <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]), most_seized_drug_class2, by=c("state_name", "county"))
+most_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Most Seized Drugs") + 
+  scale_fill_viridis_d(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class
+# ggsave(paste("most seized drug (classified) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_class, width=22, height=15, units="cm")
+
+most_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=most_seized_drug, alpha=Stimulants_prop)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Most Seized Drugs") + 
+  scale_fill_viridis_d(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> most_seized_drug_ggplot_class_alpha
+# ggsave(paste("most seized drug (classified alpha) for each county during 2018-2021.png", sep=""), most_seized_drug_ggplot_class_alpha, width=22, height=15, units="cm")
+
+second_seized_drug_class <- seizure_counts_class %>% 
+  group_by(state_name, county) %>% 
+  arrange(count, .by_group=T) %>% 
+  summarise(second_seized_drug=Drug[ifelse(n()-1 > 0, n()-1, NA)],
+            count=ifelse(n()-1 > 0, count[n()-1], NA))
+second_seized_drug_class$second_seized_drug <- ifelse(second_seized_drug_class$second_seized_drug %in% c("Cannabinoids", "Depressants", "Stimulants", "Hallucinogens"),
+                                                       second_seized_drug_class$second_seized_drug, "Other")
+
+second_seized_drug_class_map <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]), second_seized_drug_class, by=c("state_name", "county"))
+second_seized_drug_class_map %>% ggplot(mapping = aes(long, lat, group = group, fill=second_seized_drug)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Second-Most Seized Drugs") + 
+  scale_fill_viridis_d(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> second_seized_drug_ggplot_class
+# ggsave(paste("second seized drug (classified) for each county during 2018-2021.png", sep=""), second_seized_drug_ggplot_class, width=22, height=15, units="cm")
+
+
+## Correlation Cannabinoids vs. Crack / Cocaine / Meth
+seizure_counts_for_cor <- seizure_counts
+seizure_counts_for_cor$Drug <- ifelse(seizure_counts_for_cor$Drug %in% Cannabinoids, "Cannabinoids", seizure_counts_for_cor$Drug)
+seizure_counts_for_cor$Drug <- ifelse(seizure_counts_for_cor$Drug %in% grep("Cocaine", drugs, value=T), "Other_Cocaine", seizure_counts_for_cor$Drug)
+seizure_counts_for_cor$Drug <- ifelse(seizure_counts_for_cor$Drug %in% Meth, "Meth", seizure_counts_for_cor$Drug)
+seizure_counts_for_cor <- seizure_counts_for_cor %>% 
+  filter(Drug %in% c("Cannabinoids", "Crack", "Other_Cocaine", "Meth")) %>% 
+  group_by(state_name, county, Drug) %>%
+  summarise(count=sum(count)) %>% 
+  pivot_wider(names_from="Drug", values_from="count") %>% 
+  replace_na(list(Cannabinoids=0, Crack=0, Other_Cocaine=0, Meth=0))
+
+cor(seizure_counts_for_cor[, 3:6])
+
+## Meth vs. Ice
+seizure_counts_meth <- seizure_counts
+seizure_counts_meth$Drug <- ifelse(seizure_counts_meth$Drug %in% Meth[Meth != "Ice"], "Meth", seizure_counts_meth$Drug)
+seizure_counts_meth <- seizure_counts_meth %>% 
+  filter(Drug %in% c("Meth", "Ice")) %>% 
+  group_by(state_name, county, Drug) %>%
+  summarise(count=sum(count)) %>% 
+  pivot_wider(names_from="Drug", values_from="count") %>% 
+  replace_na(list(Meth=0, Ice=0))
+seizure_counts_meth
+
+seizure_counts_meth[,3:4] %>%
+  group_by(Ice, Meth) %>% 
+  summarise(num_of_cases=n()) %>%
+  ggplot(aes(x=Meth, y=Ice, size=num_of_cases)) +
+  geom_point() +
+  labs(xlab="Meth Seizure Count", ylab="Ice Seizure Count")
+
+seizure_counts_meth %>% arrange(desc(Ice))
+seizure_counts_meth %>% arrange(desc(Meth))
+seizure_counts_meth_map <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]), seizure_counts_meth, by=c("state_name", "county"))
+seizure_counts_meth_map %>% ggplot(mapping = aes(long, lat, group = group, fill=Meth)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Meth Seizure Counts") + 
+  scale_fill_viridis_c(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+seizure_counts_meth_map %>% ggplot(mapping = aes(long, lat, group = group, fill=Ice)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Ice Seizure Counts") + 
+  scale_fill_viridis_c(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+seizure_counts_meth_map2 <- left_join(unique(coordinate.HIDTA[,c(1:2, 6:7, 12, 14, 15)]),
+                                     seizure_counts_meth %>% filter(Ice < 3000),
+                                     by=c("state_name", "county"))
+seizure_counts_meth_map2 %>% ggplot(mapping = aes(long, lat, group = group, fill=Ice)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  labs(fill = "Drug", title="Ice Seizure Counts") + 
+  scale_fill_viridis_c(na.value="white") +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
