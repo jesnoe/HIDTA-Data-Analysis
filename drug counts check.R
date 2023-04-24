@@ -20,7 +20,6 @@ non_US_territory <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Orig
 non_US_territory
 
 seizures <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Original.xlsx") %>% filter(State %in% coordinate.HIDTA$state_name)
-seizures %>% filter(!(state_name %in% coordinate.HIDTA$state_name)) %>% pull(state_name) %>% unique
 # seizures <- seizures %>% filter(County != "Michigan")
 seizures$County <- substring(seizures$County, 1, str_locate(seizures$County, ",")[,1]-1)
 seizures$Year <- substring(seizures$SeizureDate, 1, 4)
