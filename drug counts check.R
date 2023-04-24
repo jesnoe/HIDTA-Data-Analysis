@@ -14,8 +14,9 @@ coordinate.HIDTA$county <- str_split(coordinate.HIDTA$county_name, " ") %>%
   unlist
 HIDTA.regions <- coordinate.HIDTA %>% filter(!is.na(HIDTA)) %>% select(GEOID, HIDTA) %>% unique
 
-seizures <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Original.xlsx") %>% filter(State %in% coordinate.HIDTA$state_name)
-seizures <- seizures %>% filter(County != "Michigan")
+seizures <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Original.xlsx")# %>% filter(State %in% coordinate.HIDTA$state_name)
+seizures %>% filter(!(state_name %in% coordinate.HIDTA$state_name)) %>% pull(state_name) %>% unique
+# seizures <- seizures %>% filter(County != "Michigan")
 seizures$County <- substring(seizures$County, 1, str_locate(seizures$County, ",")[,1]-1)
 seizures$Year <- substring(seizures$SeizureDate, 1, 4)
 seizures$Month <- substring(seizures$SeizureDate, 6, 7)
@@ -33,7 +34,7 @@ seizures %>%
   arrange(desc(count))
 
 seizures_renamed <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Combined.xlsx") %>% filter(State %in% coordinate.HIDTA$state_name)
-seizures_renamed <- seizures_renamed %>% filter(County != "Michigan")
+# seizures_renamed <- seizures_renamed %>% filter(County != "Michigan")
 seizures_renamed$County <- substring(seizures_renamed$County, 1, str_locate(seizures_renamed$County, ",")[,1]-1)
 seizures_renamed$Year <- substring(seizures_renamed$SeizureDate, 1, 4)
 seizures_renamed$Month <- substring(seizures_renamed$SeizureDate, 6, 7)
@@ -44,5 +45,17 @@ all_counts_renamed <- seizures_renamed %>%
   group_by(Drug) %>%
   summarise(count=sum(Quantity > 0)) %>% 
   arrange(desc(count))
+all_counts_renamed
+seizures_renamed %>% 
+  group_by(Drug) %>%
+  summarise(count=n()) %>% 
+  arrange(desc(count))
 
-all_counts
+seizures %>% filter(Quantity == 0)
+seizures_renamed %>% filter(Quantity == 0)
+
+seizures %>% filter(!(county %in% unique(seizures_renamed$county))) %>% select(state_name, county) %>% unique
+seizures_renamed %>% filter(!(county %in% unique(seizures$county))) %>% select(state_name, county) %>% unique
+
+seizures %>% select(state_name, county) %>% unique %>% filter(state_name=="Maryland")
+seizures_renamed %>% select(state_name, county) %>% unique %>% filter(state_name=="Maryland")
