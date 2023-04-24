@@ -14,7 +14,7 @@ coordinate.HIDTA$county <- str_split(coordinate.HIDTA$county_name, " ") %>%
   unlist
 HIDTA.regions <- coordinate.HIDTA %>% filter(!is.na(HIDTA)) %>% select(GEOID, HIDTA) %>% unique
 
-seizures <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Original.xlsx")# %>% filter(State %in% coordinate.HIDTA$state_name)
+seizures <- read_xlsx("Drug Seizures All HIDTAs All Drugs 2018-2021 Original.xlsx") %>% filter(State %in% coordinate.HIDTA$state_name)
 seizures %>% filter(!(state_name %in% coordinate.HIDTA$state_name)) %>% pull(state_name) %>% unique
 # seizures <- seizures %>% filter(County != "Michigan")
 seizures$County <- substring(seizures$County, 1, str_locate(seizures$County, ",")[,1]-1)
