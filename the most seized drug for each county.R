@@ -273,6 +273,15 @@ seizure_counts_for_cor <- seizure_counts_for_cor %>%
 
 cor(seizure_counts_for_cor[, 3:6])
 
+seizure_props_for_cor <- seizure_counts_for_cor %>% 
+  mutate(total_counts=Cannabinoids+Crack+Meth+Other_Cocaine,
+         Cannabinoids=Cannabinoids/total_counts,
+         Crack=Crack/total_counts,
+         Meth=Meth/total_counts,
+         Other_Cocaine=Other_Cocaine/total_counts)
+
+cor(seizure_props_for_cor[, 3:6])
+
 ## Meth vs. Ice
 seizure_counts_meth <- seizure_counts
 seizure_counts_meth$Drug <- ifelse(seizure_counts_meth$Drug %in% Meth[Meth != "Ice"], "Meth", seizure_counts_meth$Drug)
