@@ -716,9 +716,36 @@ simulated_z_norm_10_5_0.05 %>%
                                 "LL"="blue",
                                 "LH"="steelblue",
                                 "HL"="orange",
-                                "HH"="red")) -> z_norm_0.05_z_plot
+                                "HH"="red",
+                                "Obs."="black")) +
+  geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_norm_0.05_z_plot
 # ggsave("z norm 0.05 Significance Region in Jan 2020.png", z_norm_0.05_z_plot, width=15, height=10, units="cm")
 
+set.seed(5839)
+x_norm <- rnorm(n_counties, 10, 5)
+xx_norm <- mean(x_norm)
+z_norm <- x_norm - xx_norm
+lz_norm <- lag.listw(listw_k, z_norm, zero.policy = zero.policy, NAOK = NAOK)
+simulated_z_sum <- data.frame(z=z_norm, lz=lz_norm)
+simulated_z_norm_10_5_0.05 %>% 
+  ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
+  geom_point() +
+  labs(title=expression(paste("Simulated Normal Z vs. Sum of Neighbors' ",
+                              alpha,
+                              "=0.05, ",
+                              mu,
+                              "=10, ",
+                              sigma,
+                              "=5 (k=5)")),
+  ) +
+  xlim(-40, 40) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red",
+                                "Obs."="black")) +
+  geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs."))
 
 ## plot of simulated z (and normal z) vs. sum of neighbors' z with permuting z
 permI_dist_perm_z <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement) {
