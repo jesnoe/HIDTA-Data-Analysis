@@ -1,3 +1,4 @@
+# setwd("C:/Users/gkfrj/Documents/R")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -550,8 +551,19 @@ simulated_sum_of_z_Jan2018 <- seq(min_sum_of_z, max_sum_of_z, by=1)
 simulated_z_pairs <- merge(simulated_z_Jan2018, simulated_sum_of_z_Jan2018) %>%
   mutate(z=x, sum_of_z_neigh=y) %>% 
   select(z, sum_of_z_neigh)
-simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, Inf), labels = lbs_sim)
-simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, Inf), labels = lbs_sim)
+# simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, Inf), labels = lbs_sim)
+# simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, Inf), labels = lbs_sim)
+# label Low-Med-High
+lbs3_sim <- c("L", "M", "H")
+x_qunatile <- data.frame(table(x))
+x_qunatile$quantile <- cumsum(x_qunatile$Freq) / sum(x_qunatile$Freq)
+x_qunatile #%>% write.csv("crack_Jan2020 quantile.csv", row.names=F)
+lx_qunatile <- data.frame(table(lx))
+lx_qunatile$quantile <- cumsum(lx_qunatile$Freq) / sum(lx_qunatile$Freq)
+lx_qunatile #%>% write.csv("crack_Jan2020 sum of neighbors quantile.csv", row.names=F)
+
+simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, 19-xx, Inf), labels = lbs3_sim)
+simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, 36-lxx, Inf), labels = lbs3_sim)
 simulated_z_pairs$LISA_C <- apply(simulated_z_pairs, 1,
                                   function(x) paste(x[3], x[4], sep=""))
 simulated_z_pairs$pseudo_p <- numeric(nrow(simulated_z_pairs))
@@ -559,6 +571,7 @@ alpha_sim <- 0.05
 crd_sim <- length(listw_k$weights[[1]])
 wts_sim <- listw_k$weights[[1]]
 
+nsim <- 999
 simulated_z_pairs_tested <- simulated_z_pairs
 set.seed(100)
 for (i in 1:nrow(simulated_z_pairs_tested)) {
@@ -577,19 +590,19 @@ simulated_z_pairs_tested$LISA_C <- as.factor(simulated_z_pairs_tested$LISA_C)
 observed_z_sum <- data.frame(z=z, lz=lz)
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
-  geom_point() +
+  geom_point(size=0.9) +
   labs(
-    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
+    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
     ) +
-  scale_color_manual(values = c("Insig"="grey60",
-                                "LL"="blue",
-                                "LH"="steelblue",
-                                "HL"="orange",
-                                "HH"="red",
-                                "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> crack_Jan2020_sig_region
+  # scale_color_manual(values = c("Insig"="grey60",
+  #                               "LL"="blue",
+  #                               "LH"="steelblue",
+  #                               "HL"="orange",
+  #                               "HH"="red",
+  #                               "Obs."="black")) +
+  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."))# -> crack_Jan2020_sig_region
 # ggsave("Crack Significance Region in Jan 2020.png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
 
 
