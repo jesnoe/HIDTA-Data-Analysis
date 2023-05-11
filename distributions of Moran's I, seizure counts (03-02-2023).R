@@ -21,7 +21,7 @@ crack.rel %>% ggplot(aes(LISA_IJan8)) +
   scale_y_continuous(limits=c(0,10), oob = rescale_none)
 
 crack.rel %>% ggplot(aes(Jan_2020)) +
-  geom_histogram(bins=100) +
+  geom_density() +
   labs(x="Seizure Count", title="Dist. of Seizure Counts I in Jan 2020")
 crack.rel %>% ggplot(aes(Jan_2020)) +
   geom_histogram(bins=100) +

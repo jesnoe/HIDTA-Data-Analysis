@@ -640,12 +640,15 @@ simulated_z_pairs_tested %>%
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point() +
   xlim(-10, 170) +
-  labs(title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=10)") +
+  labs(title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=10)",
+       x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+       y=expression(z[i])
+       ) +
   scale_color_manual(values = c("Insig"="grey60",
-                                "LL"="blue",
-                                "LH"="steelblue",
-                                "HL"="orange",
-                                "HH"="red"))
+                                "LL"="#4575b4",
+                                "LH"="#abd9e9",
+                                "HL"="#fdae61",
+                                "HH"="#d73027"))
 
 simulated_z_pairs_tested %>% filter(pseudo_p > 0.05 & sum_of_z_neigh < -3.5 & z > 50)
 which(simulated_z_pairs_tested$pseudo_p > 0.05 & simulated_z_pairs_tested$sum_of_z_neigh < -3.5 & simulated_z_pairs_tested$z > 50)
@@ -656,7 +659,7 @@ sum(x>0)/length(x)
 summary(x) # min=0, max=92
 n_counties <- length(x)
 
-simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, perm_z=F) {
+simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, nsim_, perm_z=F) {
   x_norm <- rnorm(n_points, x_mean, x_sd)
   xx_norm <- mean(x_norm)
   z_norm <- x_norm - xx_norm
@@ -686,12 +689,12 @@ simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, perm_z=F)
     sum_of_z_normnj <- simulated_z_norm_pairs_tested$sum_of_z_norm_neigh[i]
     Ii <- zi*sum_of_z_normnj/s2
     if (perm_z) {
-      I_perm_w_rep_sim <- permI_dist_perm_z(zi, z_norm, crd_sim, wts_sim, nsim, Ii, replacement=T)
+      I_perm_w_rep_sim <- permI_dist_perm_z(zi, z_norm, crd_sim, wts_sim, nsim_, Ii, replacement=T)
     }else{
-      I_perm_w_rep_sim <- permI_dist(zi, z_norm, crd_sim, wts_sim, nsim, Ii, replacement=T)
+      I_perm_w_rep_sim <- permI_dist(zi, z_norm, crd_sim, wts_sim, nsim_, Ii, replacement=T)
     }
-    R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
-    pseudo_p <- min(R_plus, nsim-R_plus)/(nsim+1)
+    R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim_+1)] >= Ii)
+    pseudo_p <- min(R_plus, nsim_-R_plus)/(nsim_+1)
     current_LISA_C <- simulated_z_norm_pairs_tested$LISA_C[i]
     simulated_z_norm_pairs_tested$pseudo_p[i] <- pseudo_p
     simulated_z_norm_pairs_tested$LISA_C[i] <- ifelse(pseudo_p > alpha_sim, "Insig", current_LISA_C)
@@ -700,12 +703,16 @@ simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, perm_z=F)
   return(simulated_z_norm_pairs_tested)
 }
 
+
+# coords.all <- counties.obs %>% group_by(GEOID) %>% summarise(x=mean(long), y=mean(lat))
+# GEOIDS.all <- coords.all$GEOID
+# coords.all <- coords.all[,-1]
 nb_crack_k <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
 listw_k <- nb2listw(nb_crack_k, style="B")
 set.seed(5839)
-simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k)
+simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, nsim_=9999)
 set.seed(5839)
-simulated_z_norm_10_5_0.10 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.10, listw=listw_k)
+simulated_z_norm_10_5_0.10 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.10, listw=listw_k, nsim_=999)
 
 simulated_z_norm_10_5_0.05 %>% 
   ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
@@ -745,6 +752,8 @@ xx_norm <- mean(x_norm)
 z_norm <- x_norm - xx_norm
 lz_norm <- lag.listw(listw_k, z_norm, zero.policy = zero.policy, NAOK = NAOK)
 simulated_z_sum <- data.frame(z=z_norm, lz=lz_norm)
+sum_of_z_neigh_LB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=T)
+sum_of_z_neigh_UB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=F)
 
 simulated_z_norm_10_5_0.05 %>% 
   ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
@@ -756,13 +765,17 @@ simulated_z_norm_10_5_0.05 %>%
     color="LISA_C"
   ) +
   scale_color_manual(values = c("Insig"="grey60",
-                                "LL"="blue",
-                                "LH"="steelblue",
-                                "HL"="orange",
-                                "HH"="red",
+                                "LL"="#4575b4",
+                                "LH"="#abd9e9",
+                                "HL"="#fdae61",
+                                "HH"="#d73027",
                                 "Obs."="black")) +
+  geom_vline(xintercept=c(sum_of_z_neigh_LB, sum_of_z_neigh_UB)) +
   geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_norm_0.05_z_plot
 # ggsave("z norm 0.05 Significance Region in Jan 2020.png", z_norm_0.05_z_plot, width=15, height=10, units="cm")
+
+simulated_z_norm_10_5_0.05 %>% filter(sum_of_z_norm_neigh > sum_of_z_neigh_LB & sum_of_z_norm_neigh < sum_of_z_neigh_UB) %>% 
+  pull(pseudo_p)
 
 set.seed(5839)
 x_norm <- rnorm(n_counties, 10, 5)
@@ -947,13 +960,20 @@ simulated_z_chisq <- function(df, n_points, alpha_sim, listw, perm_z=F, nsim_) {
 
 nb_crack_k <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
 listw_k <- nb2listw(nb_crack_k, style="B")
-nsim <- 999
+nsim <- 9999
 set.seed(5839)
-simulated_z_chisq_1_0.05 <- simulated_z_chisq(df=1, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T, nsim_=nsim)
-simulated_z_chisq_5_0.05 <- simulated_z_chisq(df=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T, nsim_=nsim)
+simulated_z_chisq_1_0.05 <- simulated_z_chisq(df=1, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=F, nsim_=nsim)
+simulated_z_chvisq_5_0.05 <- simulated_z_chisq(df=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T, nsim_=nsim)
 simulated_z_chisq_10_0.05 <- simulated_z_chisq(df=10, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T, nsim_=nsim)
 simulated_z_chisq_20_0.05 <- simulated_z_chisq(df=20, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T, nsim_=nsim)
 
+chisq_sum_of_z_neigh_LB <- qchisq(0.05, 5, lower.tail=T) #  1.145476
+chisq_sum_of_z_neigh_UB <- qchisq(0.05, 5, lower.tail=F) # 11.0705
+set.seed(5839)
+x_chisq <- rchisq(n_counties, 1)
+xx_chisq <- mean(x_chisq)
+lx_chisq <- lag.listw(listw, x_chisq, zero.policy = zero.policy, NAOK = NAOK)
+lxx_chisq <- mean(lx_chisq)
 simulated_z_chisq_1_0.05 %>% 
   ggplot(aes(x=sum_of_z_chisq_neigh, y=z, color=LISA_C)) +
   geom_point() +
@@ -962,11 +982,12 @@ simulated_z_chisq_1_0.05 %>%
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i]),
   ) +
+  geom_vline(xintercept=c(chisq_sum_of_z_neigh_LB-lxx_chisq, chisq_sum_of_z_neigh_UB-lxx_chisq)) +
   scale_color_manual(values = c("Insig"="grey60",
-                                "LL"="blue",
-                                "LH"="steelblue",
-                                "HL"="orange",
-                                "HH"="red")) -> chisq_p1
+                                "LL"="#4575b4",
+                                "LH"="#abd9e9",
+                                "HL"="#fdae61",
+                                "HH"="#d73027")) -> chisq_p1
 
 simulated_z_chisq_5_0.05 %>% 
   ggplot(aes(x=sum_of_z_chisq_neigh, y=z, color=LISA_C)) +
@@ -1009,4 +1030,4 @@ simulated_z_chisq_20_0.05 %>%
                                 "HH"="red")) -> chisq_p4
 
 chisq_sim_plots <- grid.arrange(chisq_p1, chisq_p2, chisq_p3, chisq_p4, ncol=2)
-ggsave("Simulated Chisq Z vs. Sum of Neighbors.png", chisq_sim_plots, width=15, height=10, units="cm")
+# ggsave("Simulated Chisq Z vs. Sum of Neighbors.png", chisq_sim_plots, width=15, height=10, units="cm")
