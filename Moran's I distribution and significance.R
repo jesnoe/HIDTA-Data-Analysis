@@ -1,4 +1,4 @@
-# setwd("C:/Users/gkfrj/Documents/R")
+# setwd("/Users/euseongjang/Documents/R")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -898,7 +898,7 @@ simulated_z_norm_10_5_0.05 %>%
 # ggsave("z norm 0.05 z_i Permuted Significance Region in Jan 2020.png", z_norm_0.05_zi_perm_sig_region, width=15, height=10, units="cm")
 
 # Significance regions of Chi-square random samples
-x_var <- 1:50
+x_var <- c(seq(0.1, 0.9, by=0.1), 1:90)
 chi_sq_1 <- dchisq(x_var, 1)
 chi_sq_5 <- dchisq(x_var, 5)
 chi_sq_10 <- dchisq(x_var, 10)
@@ -1031,3 +1031,109 @@ simulated_z_chisq_20_0.05 %>%
 
 chisq_sim_plots <- grid.arrange(chisq_p1, chisq_p2, chisq_p3, chisq_p4, ncol=2)
 # ggsave("Simulated Chisq Z vs. Sum of Neighbors.png", chisq_sim_plots, width=15, height=10, units="cm")
+
+
+# Significance regions of gamma random samples
+crack.rel %>% ggplot(aes(Jan_2020)) +
+  geom_density() +
+  labs(x="Seizure Count", title="Dist. of Seizure Counts I in Jan 2020")
+
+x_var <- c(seq(0.1, 0.9, by=0.1), 1:90)
+gamma_1 <- dgamma(x_var, shape=.5, rate=1)
+gamma_2 <- dgamma(x_var, shape=.5, rate=0.5)
+gamma_3 <- dgamma(x_var, shape=.25, rate=1)
+gamma_4 <- dgamma(x_var, shape=.25, rate=.25)
+df <- data.frame(x_var, gamma_1, gamma_2, gamma_3, gamma_4)
+df %>% ggplot(aes(x_var, gamma_1)) +
+  geom_line()
+df %>% ggplot(aes(x_var, gamma_2)) +
+  geom_line()
+df %>% ggplot(aes(x_var, gamma_3)) +
+  geom_line()
+df %>% ggplot(aes(x_var, gamma_4)) +
+  geom_line()
+
+crack.rel %>% filter(Jan_2020 > 0) %>% 
+  ggplot(aes(Jan_2020)) +
+  geom_density() +
+  labs(x="Seizure Count", title="Dist. of Seizure Counts I in Jan 2020")
+
+nonzero_x_var <- c(1:90)
+nonzero_gamma_1 <- pgamma(nonzero_x_var, shape=1, rate=.5)
+nonzero_gamma_2 <- pgamma(nonzero_x_var, shape=2, rate=.5)
+nonzero_gamma_3 <- pgamma(nonzero_x_var, shape=3, rate=.5)
+nonzero_gamma_4 <- pgamma(nonzero_x_var, shape=3, rate=.5)
+nonzero_df <- data.frame(nonzero_x_var, nonzero_gamma_1, nonzero_gamma_2, nonzero_gamma_3, nonzero_gamma_4)
+nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_1)) +
+  geom_line()
+nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_2)) +
+  geom_line()
+nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_3)) +
+  geom_line()
+nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_4)) +
+  geom_line()
+
+Jan_2020_tb <- table(crack.rel %>% filter(Jan_2020 > 0) %>% pull(Jan_2020))
+Jan_2020_df <- data.frame(seizure_count=as.numeric(rownames(Jan_2020_tb)),
+                          density=cumsum(Jan_2020_tb)/sum(Jan_2020_tb))
+Jan_2020_df
+pgamma(Jan_2020_df$seizure_count, shape=5, rate=1)
+
+Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
+  geom_line() +
+  geom_line(data=nonzero_df, 
+            mapping=aes(nonzero_x_var, nonzero_gamma_1),
+            color=2) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(nonzero_x_var, nonzero_gamma_2),
+            color=3) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(nonzero_x_var, nonzero_gamma_3),
+            color=4) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(nonzero_x_var, nonzero_gamma_4),
+            color=5)
+
+x_seizure <- Jan_2020_df$seizure_count
+nonzero_gamma_1 <- pgamma(x_seizure, shape=1, rate=.1)
+nonzero_gamma_2 <- pgamma(x_seizure, shape=1, rate=.2)
+nonzero_gamma_3 <- pgamma(x_seizure, shape=3, rate=.1)
+nonzero_gamma_4 <- pgamma(x_seizure, shape=4, rate=.1)
+nonzero_df <- data.frame(x_seizure, nonzero_gamma_1, nonzero_gamma_2, nonzero_gamma_3, nonzero_gamma_4)
+
+Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
+  geom_line() +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, nonzero_gamma_1),
+            color=2) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, nonzero_gamma_2),
+            color=3) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, nonzero_gamma_3),
+            color=4) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, nonzero_gamma_4),
+            color=5)
+
+
+p_chi_sq_1 <- pchisq(x_seizure, 1)
+p_chi_sq_2 <- pchisq(x_seizure, 5)
+p_chi_sq_3 <- pchisq(x_seizure, 10)
+p_chi_sq_4 <- pchisq(x_seizure, 15)
+p_chi_sq_df <- data.frame(x_seizure, p_chi_sq_1, p_chi_sq_2, p_chi_sq_3, p_chi_sq_4)
+
+Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
+  geom_line() +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, p_chi_sq_1),
+            color=2) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, p_chi_sq_2),
+            color=3) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, p_chi_sq_3),
+            color=4) +
+  geom_line(data=nonzero_df, 
+            mapping=aes(x_seizure, p_chi_sq_4),
+            color=5)
