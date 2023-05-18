@@ -1,4 +1,5 @@
 # setwd("/Users/euseongjang/Documents/R")
+# setwd("C:/Users/gkfrj/Documents/R")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -1053,9 +1054,10 @@ df %>% ggplot(aes(x_var, gamma_3)) +
 df %>% ggplot(aes(x_var, gamma_4)) +
   geom_line()
 
-crack.rel %>% filter(Jan_2020 > 0) %>% 
+crack.rel %>%
   ggplot(aes(Jan_2020)) +
-  geom_density() +
+  geom_histogram(binwidth=1) +
+  # xlim(1, 90) +
   labs(x="Seizure Count", title="Dist. of Seizure Counts I in Jan 2020")
 
 nonzero_x_var <- c(1:90)
@@ -1073,9 +1075,16 @@ nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_3)) +
 nonzero_df %>% ggplot(aes(nonzero_x_var, nonzero_gamma_4)) +
   geom_line()
 
+Jan_2020_all_tb <- table(crack.rel %>% pull(Jan_2020))
+Jan_2020_all_df <- data.frame(seizure_count=as.numeric(rownames(Jan_2020_all_tb)),
+                          density=cumsum(Jan_2020_all_tb)/sum(Jan_2020_all_tb))
+Jan_2020_all_df %>% ggplot(aes(seizure_count, density)) +
+  geom_line()
+
 Jan_2020_tb <- table(crack.rel %>% filter(Jan_2020 > 0) %>% pull(Jan_2020))
 Jan_2020_df <- data.frame(seizure_count=as.numeric(rownames(Jan_2020_tb)),
                           density=cumsum(Jan_2020_tb)/sum(Jan_2020_tb))
+
 Jan_2020_df
 pgamma(Jan_2020_df$seizure_count, shape=5, rate=1)
 
@@ -1095,10 +1104,10 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
             color=5)
 
 x_seizure <- Jan_2020_df$seizure_count
-nonzero_gamma_1 <- pgamma(x_seizure, shape=1, rate=.1)
-nonzero_gamma_2 <- pgamma(x_seizure, shape=1, rate=.2)
-nonzero_gamma_3 <- pgamma(x_seizure, shape=3, rate=.1)
-nonzero_gamma_4 <- pgamma(x_seizure, shape=4, rate=.1)
+nonzero_gamma_1 <- pgamma(x_seizure, shape=.8, rate=.1)
+nonzero_gamma_2 <- pgamma(x_seizure, shape=.8, rate=.12)
+nonzero_gamma_3 <- pgamma(x_seizure, shape=.8, rate=.13)
+nonzero_gamma_4 <- pgamma(x_seizure, shape=.8, rate=.14)
 nonzero_df <- data.frame(x_seizure, nonzero_gamma_1, nonzero_gamma_2, nonzero_gamma_3, nonzero_gamma_4)
 
 Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
@@ -1116,24 +1125,19 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
             mapping=aes(x_seizure, nonzero_gamma_4),
             color=5)
 
+gamma_upper_tail <- qgamma(0.05/0.08, shape=.8*5, rate=.1, lower.tail=F) - xx # 30.23395
 
-p_chi_sq_1 <- pchisq(x_seizure, 1)
-p_chi_sq_2 <- pchisq(x_seizure, 5)
-p_chi_sq_3 <- pchisq(x_seizure, 10)
-p_chi_sq_4 <- pchisq(x_seizure, 15)
-p_chi_sq_df <- data.frame(x_seizure, p_chi_sq_1, p_chi_sq_2, p_chi_sq_3, p_chi_sq_4)
-
-Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
-  geom_line() +
-  geom_line(data=nonzero_df, 
-            mapping=aes(x_seizure, p_chi_sq_1),
-            color=2) +
-  geom_line(data=nonzero_df, 
-            mapping=aes(x_seizure, p_chi_sq_2),
-            color=3) +
-  geom_line(data=nonzero_df, 
-            mapping=aes(x_seizure, p_chi_sq_3),
-            color=4) +
-  geom_line(data=nonzero_df, 
-            mapping=aes(x_seizure, p_chi_sq_4),
-            color=5)
+simulated_z_pairs_tested %>% 
+  ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+  geom_point(size=1.5) +
+  labs(
+    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
+    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    y=expression(z[i])
+  ) +
+  geom_vline(xintercept=gamma_upper_tail) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red"))
