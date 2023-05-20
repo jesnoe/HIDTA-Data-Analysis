@@ -776,22 +776,30 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
             mapping=aes(x_seizure, nonzero_gamma_4),
             color=5)
 
-gamma_upper_tail <- qgamma(0.05/0.08, shape=.8*5, rate=.1, lower.tail=F) - xx # 30.23395
+zero_inflated_gamma <- function(xvar, shape, rate, k, n_nonzero, pi) {
+  result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (1-pi)^n_nonzero * pi^(k-n_nonzero) * pgamma(xvar, n_nonzero*shape, rate, lower.tail=F)
+  return(result)
+}
 
-simulated_z_pairs_tested %>% 
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
-  geom_point(size=1.5) +
-  labs(
-    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i])
-  ) +
-  geom_vline(xintercept=gamma_upper_tail) +
-  scale_color_manual(values = c("Insig"="grey60",
-                                "LL"="blue",
-                                "LH"="steelblue",
-                                "HL"="orange",
-                                "HH"="red"))
+sum_of_neigh_gamma <- function(xvar, shape, rate, k, pi) {
+  result <- c()
+  for (i in 1:k) {
+    result <- sum(result, zero_inflated_gamma(xvar, shape, rate, k, i, pi))
+  }
+  return(result)
+}
+sum_of_neigh_gamma <- Vectorize(sum_of_neigh_gamma, vectorize.args="xvar")
+
+upper_bound_df <- data.frame(z=5:30, 
+                             upper_tail_probability=sum_of_neigh_gamma(5:30, shape=0.8, rate=0.1, k=5, pi=0.92))
+upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
+  geom_line()
+
+data.frame(z=seq(18, 19, by=0.01), 
+           upper_tail_probability=sum_of_neigh_gamma(seq(18, 19, by=0.01), shape=0.8, rate=0.1, k=5, pi=0.92))[60:65,]
+
+gamma_upper_tail <- 18.62
+
 
 
 ## plot of simulated x vs. sum of neighbors' x
@@ -844,7 +852,7 @@ simulated_x_pairs_tested %>%
     x=expression(sum(paste(w[ij],x[j]), "j=1", N)),
     y=expression(x[i])
   ) +
-  geom_vline(xintercept=qgamma(0.05/0.08, shape=.8*5, rate=.1, lower.tail=F)) +
+  geom_vline(xintercept=gamma_upper_tail) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
