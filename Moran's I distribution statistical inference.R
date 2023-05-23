@@ -1,15 +1,16 @@
 # setwd("/Users/euseongjang/Documents/R")
 # setwd("C:/Users/gkfrj/Documents/R")
-library(fpp2)
-library(spdep)
-library(readxl)
-library(scales)
-library(stringr)
-library(urbnmapr)
-library(tidyverse)
-library(gridExtra)
-library(lubridate)
 {
+  library(fpp2)
+  library(spdep)
+  library(readxl)
+  library(scales)
+  library(stringr)
+  library(urbnmapr)
+  library(tidyverse)
+  library(gridExtra)
+  library(lubridate)
+  library(fitdistrplus)
   crack <- read.csv("cocaine crack count HIDTA (02-21-2023).csv") %>% as_tibble
   LISA3 <- read.csv("CountyKNN3.csv") %>% as_tibble %>% arrange(GEOID)
   
@@ -776,6 +777,17 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
             mapping=aes(x_seizure, nonzero_gamma_4),
             color=5)
 
+# Find alpha and beta with MLE
+nonzero_Jan_2020 <- crack.rel %>% filter(Jan_2020 > 0) %>% pull(Jan_2020)
+gamma_mle <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mle")
+gamma_mle # shape=1.1415833, rate=0.1198246
+shape_mle <- gamma_mle$estimate[1]
+rate_mle <- gamma_mle$estimate[2]
+
+poisson_mle <- fitdist(crack.rel$Jan_2020, distr = "pois", method = "mle")
+poisson_mle
+ppois(0, 0.7588933)
+
 zero_inflated_gamma <- function(xvar, shape, rate, k, n_nonzero, pi) {
   result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (1-pi)^n_nonzero * pi^(k-n_nonzero) * pgamma(xvar, n_nonzero*shape, rate, lower.tail=F)
   return(result)
@@ -791,14 +803,40 @@ sum_of_neigh_gamma <- function(xvar, shape, rate, k, pi) {
 sum_of_neigh_gamma <- Vectorize(sum_of_neigh_gamma, vectorize.args="xvar")
 
 upper_bound_df <- data.frame(z=5:30, 
-                             upper_tail_probability=sum_of_neigh_gamma(5:30, shape=0.8, rate=0.1, k=5, pi=0.92))
+                             upper_tail_probability=sum_of_neigh_gamma(5:30, shape=shape_mle, rate=rate_mle, k=5, pi=0.92))
 upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
   geom_line()
 
-data.frame(z=seq(18, 19, by=0.01), 
-           upper_tail_probability=sum_of_neigh_gamma(seq(18, 19, by=0.01), shape=0.8, rate=0.1, k=5, pi=0.92))[60:65,]
+data.frame(z=seq(20, 22, by=0.01), 
+           upper_tail_probability=sum_of_neigh_gamma(seq(20, 22, by=0.01), shape=shape_mle, rate=rate_mle, k=5, pi=0.92))[99:105,]
 
-gamma_upper_tail <- 18.62
+gamma_upper_tail <- 21.01
+
+# gamma_mme <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mme")
+# gamma_mge <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mge")
+# gamma_mse <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mse")
+# 
+x_seizure <- Jan_2020_df$seizure_count
+nonzero_gamma_1 <- pgamma(x_seizure, shape=.8, rate=.1)
+nonzero_gamma_mle <- pgamma(x_seizure, shape=shape_mle, rate=rate_mle)
+# nonzero_gamma_mge <- pgamma(x_seizure, shape=gamma_mge$estimate[1], rate=gamma_mge$estimate[2])
+# nonzero_gamma_mse <- pgamma(x_seizure, shape=gamma_mse$estimate[1], rate=gamma_mse$estimate[2])
+# nonzero_df <- data.frame(x_seizure, nonzero_gamma_mge, nonzero_gamma_mse)
+# 
+Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
+  geom_line() +
+  geom_line(data=nonzero_df,
+            mapping=aes(x_seizure, nonzero_gamma_1),
+            color=2) +
+  geom_line(data=nonzero_df,
+            mapping=aes(x_seizure, nonzero_gamma_mle),
+            color=3)
+#   geom_line(data=nonzero_df, 
+#             mapping=aes(x_seizure, nonzero_gamma_mge),
+#             color=4) +
+#   geom_line(data=nonzero_df, 
+#             mapping=aes(x_seizure, nonzero_gamma_mse),
+#             color=5)
 
 
 
@@ -815,8 +853,7 @@ min_sum_of_x <- min(lx_simul)
 simulated_x_Jan2018 <- seq(min_x, max_x, by=1)
 simulated_sum_of_x_Jan2018 <- seq(min_sum_of_x, max_sum_of_x, by=1)
 simulated_x_pairs <- merge(simulated_x_Jan2018, simulated_sum_of_x_Jan2018) %>%
-  mutate(x=x, sum_of_x_neigh=y) %>% 
-  select(x, sum_of_x_neigh)
+  rename(sum_of_x_neigh=y)
 simulated_x_pairs$x_label <- cut(simulated_x_pairs$x, c(-Inf, xx, Inf), labels = lbs_sim)
 simulated_x_pairs$sum_of_x_neigh_label <- cut(simulated_x_pairs$sum_of_x_neigh, c(-Inf, xx, Inf), labels = lbs_sim)
 
