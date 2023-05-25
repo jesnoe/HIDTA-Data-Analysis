@@ -849,12 +849,12 @@ plot(0:10, ZIP_mme_density)
 s <- xx / (1- sum(x==0)/length(x))
 lambda_mle <- lambertW0(-s*exp(-s)) + s
 pi_mle <- 1 - xx/lambda_mle
-ZIP_mle_density <- c(pi_mle, rep(0, 10)) + (1-pi_mme)*dpois(0:10, lambda_mle)
+ZIP_mle_density <- c(pi_mle, rep(0, 10)) + (1-pi_mle)*dpois(0:10, lambda_mle)
 plot(0:10, ZIP_mle_density)
 dgamma(1:10, shape_mle, rate=rate_mle)
 
 zero_inflated_ZIP <- function(xvar, lambda, k, n_nonzero, pi) {
-  result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (pi+(1-pi)*exp(-lambda))^(k-n_nonzero) *
+  result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (pi+(1-pi)*exp(-(k-n_nonzero)*lambda))^(k-n_nonzero) *
             (1-pi)^n_nonzero * ppois(xvar, n_nonzero*lambda, lower.tail=F)
   return(result)
 }
@@ -937,14 +937,14 @@ simulated_x_pairs_tested %>%
 ref <- tibble(LISA_CJan0=0:4, label=c("Insig", "HH", "LL", "LH", "HL"))
 crack.rel %>% 
   select(state:GEOID, Jan_2020, LISA_IJan0, LISA_PJan0, LISA_CJan0) %>% 
-  mutate(z=z, sum_of_z_neigh=lz) %>% 
+  mutate(x=x, sum_of_x_neigh=lx) %>% 
   left_join( ref, by="LISA_CJan0") %>%
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=label)) +
+  ggplot(aes(x=sum_of_x_neigh, y=x, color=label)) +
   geom_point() +
   labs(
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
+    x=expression(sum(paste(w[ij],x[j]), "j=1", N)),
+    y=expression(x[i]),
     color="LISA_C"
   ) +
   geom_vline(xintercept=gamma_upper_tail) +
@@ -965,17 +965,17 @@ crack_Jan_2020 <- crack.rel
 crack_Jan_2020$LISA_CJan0_9999 <- Jan_2020_result_9999$LISA_C
 crack_Jan_2020 %>% 
   select(state:GEOID, Jan_2020, LISA_CJan0_9999) %>% 
-  mutate(z=z, sum_of_z_neigh=lz, label=LISA_CJan0_9999) %>% 
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=label)) +
+  mutate(x=x, sum_of_x_neigh=lx, label=LISA_CJan0_9999) %>% 
+  ggplot(aes(x=sum_of_x_neigh, y=x, color=label)) +
   geom_point() +
   labs(
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
+    x=expression(sum(paste(w[ij],x[j]), "j=1", N)),
+    y=expression(x[i]),
     color="LISA_C"
   ) +
-  geom_vline(xintercept=gamma_upper_tail) +
-  # geom_vline(xintercept=ZIP_upper_tail) +
+  # geom_vline(xintercept=gamma_upper_tail) +
+  geom_vline(xintercept=ZIP_upper_tail) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
