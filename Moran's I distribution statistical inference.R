@@ -7,10 +7,11 @@
   library(scales)
   library(stringr)
   library(urbnmapr)
+  library(fitdistrplus)
   library(tidyverse)
   library(gridExtra)
   library(lubridate)
-  library(fitdistrplus)
+  library(lamW)
   crack <- read.csv("cocaine crack count HIDTA (02-21-2023).csv") %>% as_tibble
   LISA3 <- read.csv("CountyKNN3.csv") %>% as_tibble %>% arrange(GEOID)
   
@@ -777,16 +778,12 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
             mapping=aes(x_seizure, nonzero_gamma_4),
             color=5)
 
-# Find alpha and beta with MLE
+# Find alpha and beta of gamma dist. with MLE
 nonzero_Jan_2020 <- crack.rel %>% filter(Jan_2020 > 0) %>% pull(Jan_2020)
 gamma_mle <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mle")
 gamma_mle # shape=1.1415833, rate=0.1198246
 shape_mle <- gamma_mle$estimate[1]
 rate_mle <- gamma_mle$estimate[2]
-
-poisson_mle <- fitdist(crack.rel$Jan_2020, distr = "pois", method = "mle")
-poisson_mle
-ppois(0, 0.7588933)
 
 zero_inflated_gamma <- function(xvar, shape, rate, k, n_nonzero, pi) {
   result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (1-pi)^n_nonzero * pi^(k-n_nonzero) * pgamma(xvar, n_nonzero*shape, rate, lower.tail=F)
@@ -802,9 +799,9 @@ sum_of_neigh_gamma <- function(xvar, shape, rate, k, pi) {
 }
 sum_of_neigh_gamma <- Vectorize(sum_of_neigh_gamma, vectorize.args="xvar")
 
-upper_bound_df <- data.frame(z=5:30, 
+gamma_upper_bound_df <- data.frame(z=5:30, 
                              upper_tail_probability=sum_of_neigh_gamma(5:30, shape=shape_mle, rate=rate_mle, k=5, pi=0.92))
-upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
+gamma_upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
   geom_line()
 
 data.frame(z=seq(20, 22, by=0.01), 
@@ -839,6 +836,45 @@ Jan_2020_df %>% ggplot(aes(seizure_count, density)) +
 #             color=5)
 
 
+
+# Find lambda and pi of zero-inflated Poisson dist. with MME (method of moment estimator )
+var_x <- var(x)
+lambda_mme <- (var_x+xx^2)/xx - 1
+pi_mme <- (var_x-xx)/(var_x+xx^2-xx)
+
+ZIP_mme_density <- c(pi_mme, rep(0, 10)) + (1-pi_mme)*dpois(0:10, lambda_mme)
+plot(0:10, ZIP_mme_density)
+
+# Find lambda and pi of zero-inflated Poisson dist. with MLE
+s <- xx / (1- sum(x==0)/length(x))
+lambda_mle <- lambertW0(-s*exp(-s)) + s
+pi_mle <- 1 - xx/lambda_mle
+ZIP_mle_density <- c(pi_mle, rep(0, 10)) + (1-pi_mme)*dpois(0:10, lambda_mle)
+plot(0:10, ZIP_mle_density)
+dgamma(1:10, shape_mle, rate=rate_mle)
+
+zero_inflated_ZIP <- function(xvar, lambda, k, n_nonzero, pi) {
+  result <- (prod(k:(k-n_nonzero+1))/prod(1:n_nonzero)) * (pi+(1-pi)*exp(-lambda))^(k-n_nonzero) *
+            (1-pi)^n_nonzero * ppois(xvar, n_nonzero*lambda, lower.tail=F)
+  return(result)
+}
+
+sum_of_neigh_ZIP <- function(xvar, lambda, k, pi) {
+  result <- c()
+  for (i in 1:k) {
+    result <- sum(result, zero_inflated_ZIP(xvar, lambda, k, i, pi))
+  }
+  return(result)
+}
+
+sum_of_neigh_ZIP <- Vectorize(sum_of_neigh_ZIP, vectorize.args="xvar")
+
+ZIP_upper_bound_df <- data.frame(z=5:30, 
+                                   upper_tail_probability=sum_of_neigh_ZIP(5:30, lambda=lambda_mle, k=5, pi=pi_mle))
+ZIP_upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
+  geom_line()
+
+ZIP_upper_tail <- 16
 
 ## plot of simulated x vs. sum of neighbors' x
 lbs_sim <- c("L", "H")
@@ -889,7 +925,57 @@ simulated_x_pairs_tested %>%
     x=expression(sum(paste(w[ij],x[j]), "j=1", N)),
     y=expression(x[i])
   ) +
+  # geom_vline(xintercept=gamma_upper_tail) +
+  geom_vline(xintercept=ZIP_upper_tail) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red"))
+
+
+ref <- tibble(LISA_CJan0=0:4, label=c("Insig", "HH", "LL", "LH", "HL"))
+crack.rel %>% 
+  select(state:GEOID, Jan_2020, LISA_IJan0, LISA_PJan0, LISA_CJan0) %>% 
+  mutate(z=z, sum_of_z_neigh=lz) %>% 
+  left_join( ref, by="LISA_CJan0") %>%
+  ggplot(aes(x=sum_of_z_neigh, y=z, color=label)) +
+  geom_point() +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    y=expression(z[i]),
+    color="LISA_C"
+  ) +
   geom_vline(xintercept=gamma_upper_tail) +
+  # geom_vline(xintercept=ZIP_upper_tail) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red"))
+
+Jan_2020_result_9999 <- localmoran_abs(x, listw_k, nsim=9999, zero.policy=T, xx=NULL, alternative="two.sided")
+Jan_2020_result_9999$LISA_C <- ifelse(Jan_2020_result_9999$quadr=="High-High", "HH",
+                                      ifelse(Jan_2020_result_9999$quadr=="Low-Low", "LL",
+                                             ifelse(Jan_2020_result_9999$quadr=="Low-High", "LH", "HL")))
+Jan_2020_result_9999$LISA_C <- ifelse(Jan_2020_result_9999$`Pr(folded) Sim` <= 0.05, Jan_2020_result_9999$LISA_C, "Insig")
+
+crack_Jan_2020 <- crack.rel
+crack_Jan_2020$LISA_CJan0_9999 <- Jan_2020_result_9999$LISA_C
+crack_Jan_2020 %>% 
+  select(state:GEOID, Jan_2020, LISA_CJan0_9999) %>% 
+  mutate(z=z, sum_of_z_neigh=lz, label=LISA_CJan0_9999) %>% 
+  ggplot(aes(x=sum_of_z_neigh, y=z, color=label)) +
+  geom_point() +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    y=expression(z[i]),
+    color="LISA_C"
+  ) +
+  geom_vline(xintercept=gamma_upper_tail) +
+  # geom_vline(xintercept=ZIP_upper_tail) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
