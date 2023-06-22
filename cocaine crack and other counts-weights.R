@@ -41,13 +41,44 @@ all_counts <- all_counts %>% mutate(Month2=month(Month, label=T))
 all_counts_missingness <- all_counts %>% select(-Month) %>% 
   pivot_wider(names_from=c(Month2, Year), values_from=count) %>% 
   arrange(GEOID)
-all_counts_missingness$missing <- all_counts_missingness %>%
+all_counts_missingness$missing <- all_counts_missingness[,-1] %>%
   apply(1, function(x) ifelse(sum(x, na.rm=T) == 0, 1, 0)) # 1 if missing (no observation for 48 months)
 non_missing_GEOID <- all_counts_missingness$GEOID[all_counts_missingness$missing == 0]
 
+# all cocaine count
+{
+all_cocaine <- seizures %>% filter(Drug %in% c("Cocaine", "Cocaine, Powder", "Cocaine Base", "Crack",
+                                               "Cocaine precursor", "Coca Leaves", "Cocaine metabolite"))
+all_cocaine <- all_cocaine %>% mutate(Month2=month(Month, label=T))
+calender <- data.frame(Month=1:12, Month2=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+all_cocaine <- all_cocaine %>% group_by(state_name, county, Year, Month2) %>%
+  summarise(count=sum(Quantity > 0), .groups="drop") %>%
+  complete(state_name, county, Year, Month2) %>% 
+  pivot_wider(names_from=c(Month2, Year), names_sep="_", values_from=count)
+cal_order <- c(str_c(calender$Month2, 2018, sep="_"),
+               str_c(calender$Month2, 2019, sep="_"),
+               str_c(calender$Month2, 2020, sep="_"),
+               str_c(calender$Month2, 2021, sep="_"))
+all_cocaine <- all_cocaine[, c(1:2, match(cal_order, names(all_cocaine)))]
+
+all_cocaine <- left_join(unique(coordinate.HIDTA[,c(7, 12, 14, 15)]), all_cocaine, by=c("state_name", "county")) %>%
+  select(state_name, county, GEOID, HIDTA, Jan_2018:Dec_2021) %>% arrange(GEOID)
+names(all_cocaine)[1] <- "state"
+
+
+all_cocaine %>% filter(is.na(county))
+grep("Jan_2018", names(all_cocaine)) # 5
+grep("Dec_2021", names(all_cocaine)) # 52
+all_cocaine <- all_cocaine %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDTA))
+all_cocaine[,5:52][is.na(all_cocaine[,5:52])] <- 0
+all_cocaine %>% filter(is.na(GEOID))
+}
+all_cocaine # 1518 counties in total.
+# write.csv(all_cocaine, "all_cocaine count HIDTA (06-21-2023).csv", row.names=F)
+
 # crack count
 {
-crack <- seizures %>% filter(Drug=="Crack", Unit == "Kg")
+crack <- seizures %>% filter(Drug=="Crack")
 crack <- crack %>% mutate(Month2=month(Month, label=T))
 calender <- data.frame(Month=1:12, Month2=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 crack <- crack %>% group_by(state_name, county, Year, Month2) %>%
@@ -127,7 +158,7 @@ crack # 1459 counties in total.
 # other cocaine weight
 {
   cocaine <- seizures %>% filter(Drug %in% c("Cocaine", "Cocaine, Powder", "Cocaine Base",
-                                             "Cocaine precursor", "Coca Leaves", "Cocaine metabolite"), Unit=="Kg")
+                                             "Cocaine precursor", "Coca Leaves", "Cocaine metabolite"))
   cocaine <- cocaine %>% mutate(Month2=month(Month, label=T))
   cocaine <- cocaine %>% group_by(state_name, county, Year, Month2) %>%
     summarise(weight=sum(Quantity)) %>%
@@ -148,6 +179,55 @@ cocaine[,5:52][is.na(cocaine[,5:52])] <- 0
 cocaine %>% filter(is.na(GEOID))
 cocaine # 1518 counties in total.
 # write.csv(cocaine, "cocaine other weight HIDTA (02-21-2023).csv", row.names=F)
+
+# Annual figures of all cocaine
+coordinate_map <- coordinate.HIDTA
+names(coordinate_map)[10] <- "county"
+names(coordinate_map)[12] <- "state"
+all_cocaine$`2018` <- apply(all_cocaine[,grep("2018", names(all_cocaine))], 1, sum)
+all_cocaine$`2019` <- apply(all_cocaine[,grep("2019", names(all_cocaine))], 1, sum)
+all_cocaine$`2020` <- apply(all_cocaine[,grep("2020", names(all_cocaine))], 1, sum)
+all_cocaine$`2021` <- apply(all_cocaine[,grep("2021", names(all_cocaine))], 1, sum)
+
+all_cocaine.map <- left_join(coordinate_map[, c(1:2,6:7,10,12)], all_cocaine[, c(3, 5:56)], by = "GEOID")
+
+all_cocaine.map <- all_cocaine.map %>% 
+  select(long:state, `2018`:`2021`) %>% 
+  pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Year", values_to="seizure_counts")
+# all_cocaine.map$counts_per_pop <- all_cocaine.map$seizure_counts/all_cocaine.map$population
+
+all_cocaine.map %>%
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+  geom_polygon(color = "#000000", size = .05) +
+  facet_wrap(. ~ Year) +
+  scale_fill_viridis_c(na.value="white") +
+  labs(fill = "Seizure Counts") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> seizure_counts_map
+# ggsave("all cocaine annual seizure counts map.pdf", seizure_counts_map, width=20, height=15, units="cm")
+
+# LISA.rel.map %>% filter(grepl(year, Month_Year) & month(Month_Year) %in% 1:4) %>% 
+#   ggplot(mapping = aes(long, lat, group = group, fill=counts_per_pop)) +
+#   geom_polygon(color = "#000000", size = .05) +
+#   facet_wrap(. ~ substr(Month_Year, 1, 7)) +
+#   scale_fill_viridis_c(na.value="white") +
+#   labs(fill = "Counts Per Pop.") + 
+#   theme_bw() + 
+#   theme(panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank()) -> counts_per_pop.map
+# ggsave(paste("all cocaine counts_per_pop_", year, sep=""), counts_per_pop.map, width=20, height=15, units="cm")
+
+
+all_cocaine %>% 
+  select(GEOID, `2018`:`2021`) %>% 
+  pivot_longer(-GEOID, names_to="Year", values_to="seizure_counts") %>% 
+  ggplot(mapping = aes(seizure_counts)) +
+  geom_histogram(bins=100) +
+  facet_wrap(. ~ Year) -> seizure_counts_hist
+# ggsave("all cocaine annual seizure counts histogram.pdf", seizure_counts_hist, width=20, height=15, units="cm")
+
+  
 
 # ts plots
 seizure_ts_plot <- function(seizure, state_name, drug) {
