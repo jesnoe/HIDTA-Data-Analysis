@@ -756,6 +756,31 @@ simulated_z_sum <- data.frame(z=z_norm, lz=lz_norm)
 sum_of_z_neigh_LB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=T)
 sum_of_z_neigh_UB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=F)
 
+  # plot of result with localmoran_abs function
+pseudo_p_of_z_norm <- localmoran_abs(z_norm, listw_k, nsim=999, zero.policy=T, xx=NULL, alternative="two.sided")
+pseudo_p_of_z_norm$z <- z_norm
+pseudo_p_of_z_norm$sum_of_z_neigh <- lz_norm
+pseudo_p_of_z_norm$label <- ifelse(pseudo_p_of_z_norm$quadr=="High-High", "HH",
+                                    ifelse(pseudo_p_of_z_norm$quadr=="Low-Low", "LL",
+                                           ifelse(pseudo_p_of_z_norm$quadr=="Low-High", "LH", "HL")))
+pseudo_p_of_z_norm$label <- ifelse(pseudo_p_of_z_norm$`Pr(folded) Sim` > alpha, "Insig", pseudo_p_of_z_norm$label)
+pseudo_p_of_z_norm %>% 
+  select(z, sum_of_z_neigh, `Pr(folded) Sim`, label) %>% 
+  ggplot(aes(x=sum_of_z_neigh, y=z, color=label)) +
+  geom_point() +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    y=expression(z[i]),
+    color="LISA_C"
+  ) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red")) -> crack_z_norm_plot 
+# ggsave("z norm vs. Sum of Neighbors'.png", crack_z_norm_plot, width=15, height=10, units="cm")
+
 simulated_z_norm_10_5_0.05 %>% 
   ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
   geom_point() +
