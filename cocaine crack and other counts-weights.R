@@ -227,9 +227,9 @@ all_cocaine %>%
   facet_wrap(. ~ Year) -> seizure_counts_hist
 # ggsave("all cocaine annual seizure counts histogram.pdf", seizure_counts_hist, width=20, height=15, units="cm")
 
-  # 2018 plots
+  # 2020 plots
 all_cocaine.map %>%
-  filter(Year=="2018") %>% 
+  filter(Year=="2020") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", size = .05) +
   scale_fill_viridis_c(na.value="white") +
@@ -237,14 +237,14 @@ all_cocaine.map %>%
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("all cocaine annual seizure counts map 2018.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
+# ggsave("all cocaine annual seizure counts map 2020.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
 
 all_cocaine %>% 
-  select(GEOID, `2018`) %>% 
-  ggplot(mapping = aes(`2018`)) +
+  select(GEOID, `2020`) %>% 
+  ggplot(mapping = aes(`2020`)) +
   geom_histogram(bins=100) +
   xlab("Seizure Count") -> seizure_counts_hist
-# ggsave("all cocaine annual seizure counts histogram 2018.pdf", seizure_counts_hist, width=10, height=7, units="cm")
+# ggsave("all cocaine annual seizure counts histogram 2020.pdf", seizure_counts_hist, width=10, height=7, units="cm")
 
 
 # ts plots
