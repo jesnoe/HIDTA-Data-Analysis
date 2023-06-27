@@ -237,14 +237,14 @@ all_cocaine.map %>%
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("all cocaine annual seizure counts map 2018.pdf", seizure_counts_map, width=12, height=7, units="cm")
+# ggsave("all cocaine annual seizure counts map 2018.pdf", seizure_counts_map, width=12, height=10, units="cm")
 
 all_cocaine %>% 
   select(GEOID, `2018`) %>% 
   ggplot(mapping = aes(`2018`)) +
   geom_histogram(bins=100) +
   xlab("Seizure Count") -> seizure_counts_hist
-# ggsave("all cocaine annual seizure counts histogram 2018.pdf", seizure_counts_hist, width=12, height=7, units="cm")
+# ggsave("all cocaine annual seizure counts histogram 2018.pdf", seizure_counts_hist, width=10, height=7, units="cm")
 
 
 # ts plots
