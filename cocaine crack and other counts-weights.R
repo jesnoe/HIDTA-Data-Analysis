@@ -233,11 +233,11 @@ all_cocaine.map %>%
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", size = .05) +
   scale_fill_viridis_c(na.value="white") +
-  labs(fill = "Seizure Counts") + 
+  labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("all cocaine annual seizure counts map 2018.pdf", seizure_counts_map, width=12, height=10, units="cm")
+# ggsave("all cocaine annual seizure counts map 2018.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
 
 all_cocaine %>% 
   select(GEOID, `2018`) %>% 
