@@ -82,7 +82,7 @@ crack <- seizures %>% filter(Drug=="Crack")
 crack <- crack %>% mutate(Month2=month(Month, label=T))
 calender <- data.frame(Month=1:12, Month2=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 crack <- crack %>% group_by(state_name, county, Year, Month2) %>%
-  summarise(count=sum(Quantity > 0)) %>%
+  summarise(count=sum(Quantity > 0), .groups="drop") %>%
   complete(state_name, county, Year, Month2) %>% 
   pivot_wider(names_from=c(Month2, Year), names_sep="_", values_from=count)
 cal_order <- c(str_c(calender$Month2, 2018, sep="_"),
@@ -103,7 +103,7 @@ crack <- crack %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDTA))
 crack[,5:52][is.na(crack[,5:52])] <- 0
 crack %>% filter(is.na(GEOID))
 crack # 1518 counties in total.
-# write.csv(crack, "cocaine crack count HIDTA (02-21-2023).csv", row.names=F)
+# write.csv(crack, "cocaine crack count HIDTA (06-28-2023).csv", row.names=F)
 
 # other cocaine count
 {
@@ -111,7 +111,7 @@ crack # 1518 counties in total.
                                              "Cocaine precursor", "Coca Leaves", "Cocaine metabolite"), Unit == "Kg")
   cocaine <- cocaine %>% mutate(Month2=month(Month, label=T))
   cocaine <- cocaine %>% group_by(state_name, county, Year, Month2) %>%
-    summarise(count=sum(Quantity > 0)) %>%
+    summarise(count=sum(Quantity > 0), .groups="drop") %>%
     complete(state_name, county, Year, Month2) %>% 
     pivot_wider(names_from=c(Month2, Year), names_sep="_", values_from=count)
   cocaine <- cocaine[, c(1:2, match(cal_order, names(cocaine)))]
@@ -128,7 +128,7 @@ cocaine <- cocaine %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDTA))
 cocaine[,5:52][is.na(cocaine[,5:52])] <- 0
 cocaine %>% filter(is.na(GEOID))
 cocaine # 1518 counties in total.
-# write.csv(cocaine, "cocaine other count HIDTA (02-21-2023).csv", row.names=F)
+# write.csv(cocaine, "cocaine other count HIDTA (06-28-2023).csv", row.names=F)
 
 
 # crack weight
@@ -180,23 +180,23 @@ cocaine %>% filter(is.na(GEOID))
 cocaine # 1518 counties in total.
 # write.csv(cocaine, "cocaine other weight HIDTA (02-21-2023).csv", row.names=F)
 
-# Annual figures of all cocaine
+# Annual figures of crack
 coordinate_map <- coordinate.HIDTA
 names(coordinate_map)[10] <- "county"
 names(coordinate_map)[12] <- "state"
-all_cocaine$`2018` <- apply(all_cocaine[,grep("2018", names(all_cocaine))], 1, sum)
-all_cocaine$`2019` <- apply(all_cocaine[,grep("2019", names(all_cocaine))], 1, sum)
-all_cocaine$`2020` <- apply(all_cocaine[,grep("2020", names(all_cocaine))], 1, sum)
-all_cocaine$`2021` <- apply(all_cocaine[,grep("2021", names(all_cocaine))], 1, sum)
+crack$`2018` <- apply(crack[,grep("2018", names(crack))], 1, sum)
+crack$`2019` <- apply(crack[,grep("2019", names(crack))], 1, sum)
+crack$`2020` <- apply(crack[,grep("2020", names(crack))], 1, sum)
+crack$`2021` <- apply(crack[,grep("2021", names(crack))], 1, sum)
 
-all_cocaine.map <- left_join(coordinate_map[, c(1:2,6:7,10,12)], all_cocaine[, c(3, 5:56)], by = "GEOID")
+crack.map <- left_join(coordinate_map[, c(1:2,6:7,10,12)], crack[, c(3, 5:56)], by = "GEOID")
 
-all_cocaine.map <- all_cocaine.map %>% 
+crack.map <- crack.map %>% 
   select(long:state, `2018`:`2021`) %>% 
   pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Year", values_to="seizure_counts")
-# all_cocaine.map$counts_per_pop <- all_cocaine.map$seizure_counts/all_cocaine.map$population
+# crack.map$counts_per_pop <- crack.map$seizure_counts/all_cocaine.map$population
 
-all_cocaine.map %>%
+crack.map %>%
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", size = .05) +
   facet_wrap(. ~ Year) +
@@ -205,46 +205,35 @@ all_cocaine.map %>%
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("all cocaine annual seizure counts map.pdf", seizure_counts_map, width=20, height=15, units="cm")
-
-# LISA.rel.map %>% filter(grepl(year, Month_Year) & month(Month_Year) %in% 1:4) %>% 
-#   ggplot(mapping = aes(long, lat, group = group, fill=counts_per_pop)) +
-#   geom_polygon(color = "#000000", size = .05) +
-#   facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-#   scale_fill_viridis_c(na.value="white") +
-#   labs(fill = "Counts Per Pop.") + 
-#   theme_bw() + 
-#   theme(panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank()) -> counts_per_pop.map
-# ggsave(paste("all cocaine counts_per_pop_", year, sep=""), counts_per_pop.map, width=20, height=15, units="cm")
+# ggsave("crack annual seizure counts map.pdf", seizure_counts_map, width=20, height=15, units="cm")
 
 
-all_cocaine %>% 
+crack.map %>% 
   select(GEOID, `2018`:`2021`) %>% 
   pivot_longer(-GEOID, names_to="Year", values_to="seizure_counts") %>% 
   ggplot(mapping = aes(seizure_counts)) +
   geom_histogram(bins=100) +
   facet_wrap(. ~ Year) -> seizure_counts_hist
-# ggsave("all cocaine annual seizure counts histogram.pdf", seizure_counts_hist, width=20, height=15, units="cm")
+# ggsave("crack annual seizure counts histogram.pdf", seizure_counts_hist, width=20, height=15, units="cm")
 
   # 2020 plots
-all_cocaine.map %>%
+crack.map %>%
   filter(Year=="2020") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   scale_fill_viridis_c(na.value="white") +
   labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("all cocaine annual seizure counts map 2020.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
+# ggsave("crack annual seizure counts map 2020.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
 
-all_cocaine %>% 
+crack %>% 
   select(GEOID, `2020`) %>% 
   ggplot(mapping = aes(`2020`)) +
   geom_histogram(bins=100) +
   xlab("Seizure Count") -> seizure_counts_hist
-# ggsave("all cocaine annual seizure counts histogram 2020.pdf", seizure_counts_hist, width=10, height=7, units="cm")
+# ggsave("crack annual seizure counts histogram 2020.pdf", seizure_counts_hist, width=10, height=7, units="cm")
 
 
 # ts plots
