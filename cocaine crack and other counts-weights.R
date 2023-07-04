@@ -198,14 +198,19 @@ crack.map <- crack.map %>%
 
 crack.map %>%
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   facet_wrap(. ~ Year) +
-  scale_fill_viridis_c(na.value="white") +
-  labs(fill = "Seizure Counts") + 
+  scale_fill_viridis_c(alpha=0.9, na.value="white") +
+  labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("crack annual seizure counts map.pdf", seizure_counts_map, width=20, height=15, units="cm")
+  theme(legend.position="bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank()) -> seizure_counts_map
+# ggsave("crack annual seizure counts map 2020.pdf", seizure_counts_map, width=18, height=16, units="cm")
 
 
 crack.map %>% 
@@ -221,12 +226,21 @@ crack.map %>%
   filter(Year=="2020") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_viridis_c(na.value="white") +
+  scale_fill_viridis_c(alpha=0.9, na.value="white") +
   labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> seizure_counts_map
-# ggsave("crack annual seizure counts map 2020.pdf", seizure_counts_map, width=12, height=7.5, units="cm")
+  theme(legend.position="bottom",
+        legend.key.size = unit(0.3, 'cm'),
+        legend.title = element_text(size=5),
+        legend.text = element_text(size=5),
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank()) -> seizure_counts_map
 
 crack %>% 
   select(GEOID, `2020`) %>% 
