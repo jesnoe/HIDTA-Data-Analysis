@@ -833,7 +833,7 @@ simulated_z_norm_10_5_0.05 %>%
 permI_dist_perm_z <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement) {
   if (replacement==T) {
     zi <- sample(c(zi, z_i), size = nsim, replace = T)
-    sz_i_w_rep <- matrix(sample(z_i, size = crdi * nsim, replace = T), 
+    sz_i_w_rep <- matrix(sample(c(zi, z_i), size = crdi * nsim, replace = T), 
                          ncol = crdi, nrow = nsim)
     lz_i_w_rep <- sz_i_w_rep %*% wtsi
     I_perm <- (zi/s2) * lz_i_w_rep

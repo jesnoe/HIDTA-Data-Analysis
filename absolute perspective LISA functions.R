@@ -242,7 +242,8 @@ localmoran_perm2 <- function (x, listw, nsim = 499L, zero.policy = NULL, na.acti
 
 localmoran_abs <- function (x, listw, nsim = 499L, zero.policy = NULL, na.action = na.fail, 
                               alternative = "two.sided", mlvar = TRUE, spChk = NULL, xx=NULL, # Put a specific xx (sample mean of comparing time period)
-                              adjust.x = FALSE, sample_Ei = TRUE, iseed = NULL) {
+                              adjust.x = FALSE, sample_Ei = TRUE, iseed = NULL,
+                              moderate = F, perm.i = F) {
   alternative <- match.arg(alternative, c("greater", 
                                           "less", "two.sided"))
   stopifnot(is.vector(x))
@@ -310,19 +311,35 @@ localmoran_abs <- function (x, listw, nsim = 499L, zero.policy = NULL, na.action
                                                                  z)/n))
   }
   
-  
+  if (!moderate) {
   lz <- lag.listw(listw, z, zero.policy = zero.policy, NAOK = NAOK)
-  lbs <- c("Low", "High")
+  lbs <- c("L", "H")
   quadr_ps <- interaction(cut(z, c(-Inf, 0, Inf), labels = lbs), 
-                          cut(lz, c(-Inf, 0, Inf), labels = lbs), sep = "-")
+                          cut(lz, c(-Inf, 0, Inf), labels = lbs), sep = "")
   lx <- lag.listw(listw, x, zero.policy = zero.policy, NAOK = NAOK)
   lxx <- mean(lx, na.rm = NAOK)
   quadr <- interaction(cut(x, c(-Inf, xx, Inf), labels = lbs), 
-                       cut(lx, c(-Inf, lxx, Inf), labels = lbs), sep = "-")
+                       cut(lx, c(-Inf, lxx, Inf), labels = lbs), sep = "")
   xmed <- median(x, na.rm = NAOK)
   lxmed <- median(lx, na.rm = NAOK)
   quadr_med <- interaction(cut(x, c(-Inf, xmed, Inf), labels = lbs), 
-                           cut(lx, c(-Inf, lxmed, Inf), labels = lbs), sep = "-")
+                           cut(lx, c(-Inf, lxmed, Inf), labels = lbs), sep = "")
+  }else {
+    interval <- 2*sd(x)
+    lz <- lag.listw(listw, z, zero.policy = zero.policy, NAOK = NAOK)
+    lbs <- c("L", "H")
+    lbs2 <- c("L", "M", "H")
+    quadr_ps <- interaction(cut(z, c(-Inf, 0, interval, Inf), labels = lbs2), 
+                            cut(lz, c(-Inf, 0, Inf), labels = lbs), sep = "")
+    lx <- lag.listw(listw, x, zero.policy = zero.policy, NAOK = NAOK)
+    lxx <- mean(lx, na.rm = NAOK)
+    quadr <- interaction(cut(x, c(-Inf, xx, xx+interval, Inf), labels = lbs2), 
+                         cut(lx, c(-Inf, lxx, Inf), labels = lbs), sep = "")
+    xmed <- median(x, na.rm = NAOK)
+    lxmed <- median(lx, na.rm = NAOK)
+    quadr_med <- interaction(cut(x, c(-Inf, xmed, xmed+interval, Inf), labels = lbs2), 
+                             cut(lx, c(-Inf, lxmed, Inf), labels = lbs), sep = "")
+  }
   if (mlvar) {
     if (adjust.x) {
       s2 <- sum(z[nc]^2, na.rm = NAOK)/sum(nc)
@@ -368,9 +385,14 @@ localmoran_abs <- function (x, listw, nsim = 499L, zero.policy = NULL, na.action
   permI_int <- function(i, zi, z_i, crdi, wtsi, nsim, Ii, binary) {
     res_i <- rep(as.numeric(NA), 8)
     if (crdi > 0) {
+      if (perm.i) {
+        zi <- sample(c(zi, z_i), size = nsim, replace = TRUE)
+        z_i <- c(zi, z_i)
+      }else {
       sz_i <- matrix(sample(z_i, size = crdi * nsim, replace = TRUE), 
                      ncol = crdi, nrow = nsim)
       lz_i <- sz_i %*% wtsi
+      }
       
       if (binary == "binary") {
         res_p <- zi * lz_i
