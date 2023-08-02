@@ -1,3 +1,5 @@
+# setwd("/Users/euseongjang/Documents/R")
+# setwd("C:/Users/gkfrj/Documents/R")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -52,53 +54,63 @@ set.seed(100)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided")
-  localM.month$LISA_C <- localM.month$quadr_ps
+  localM.month$LISA_C <- as.character(localM.month$quadr_ps)
   localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
   original.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
-# write.csv(original.MoransI, "crack counts KNN5 R codes 999 two-sided original (07-31-2023).csv", row.names=F)
+# write.csv(original.MoransI, "crack counts KNN5 R codes 999 two-sided original (08-01-2023).csv", row.names=F)
 
-absolute.b1.MoransI <- crack
-x.bar_p <- mean(absolute.b1.MoransI$Jan_2018)
+moderate.MoransI <- crack
+x.bar_p <- mean(moderate.MoransI$Jan_2018)
 set.seed(300)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
-  localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=x.bar_p, alternative="two.sided")
-  localM.month$LISA_C <- ifelse(localM.month$quadr=="High-High", 1,
-                                ifelse(localM.month$quadr=="Low-Low", 2,
-                                       ifelse(localM.month$quadr=="Low-High", 3, 4)))
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, 0)
-  absolute.b1.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
+  localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T)
+  localM.month$LISA_C <- as.character(localM.month$quadr_ps)
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  moderate.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
-# write.csv(absolute.b1.MoransI, "crack counts KNN5 R codes 999 two-sided absolute base_1 (02-21-2023).csv", row.names=F)
+# write.csv(moderate.MoransI, "crack counts KNN5 R codes 999 two-sided moderate (08-01-2023).csv", row.names=F)
 
-absolute.t1.MoransI <- crack
-x.bar_p <- mean(absolute.t1.MoransI$Jan_2018)
+perm.i.MoransI <- crack
+x.bar_p <- mean(perm.i.MoransI$Jan_2018)
 set.seed(500)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
-  localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=x.bar_p, alternative="two.sided")
-  localM.month$LISA_C <- ifelse(localM.month$quadr=="High-High", 1,
-                                ifelse(localM.month$quadr=="Low-Low", 2,
-                                       ifelse(localM.month$quadr=="Low-High", 3, 4)))
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, 0)
-  absolute.t1.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-  x.bar_p <- mean(as.data.frame(crack)[,Jan_2018_index+i-1])
+  localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", perm.i=T)
+  localM.month$LISA_C <- as.character(localM.month$quadr_ps)
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  perm.i.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
-# write.csv(absolute.t1.MoransI, "crack counts KNN5 R codes 999 two-sided absolute base_t1 (02-21-2023).csv", row.names=F)
+# write.csv(perm.i.MoransI, "crack counts KNN5 R codes 999 two-sided permute i (08-01-2023).csv", row.names=F)
+
+both.MoransI <- crack
+x.bar_p <- mean(both.MoransI$Jan_2018)
+set.seed(500)
+for (i in 1:48) {
+  seizure.crack <- t(seizures.crack)[i,]
+  localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T, perm.i=T)
+  localM.month$LISA_C <- as.character(localM.month$quadr_ps)
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  both.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
+}
+
+# write.csv(both.MoransI, "crack counts KNN5 R codes 999 two-sided moderate permute i (08-01-2023).csv", row.names=F)
 
 # crack Plots
-LISA.rel <- read.csv("crack counts KNN5 R codes 999 two-sided relative (02-21-2023).csv") %>% as_tibble
-LISA.abs.1 <- read.csv("crack counts KNN5 R codes 999 two-sided absolute base_1 (02-21-2023).csv") %>% as_tibble
-LISA.abs.t_1 <- read.csv("crack counts KNN5 R codes 999 two-sided absolute base_t1 (02-21-2023).csv") %>% as_tibble
+LISA.org <- read.csv("crack counts KNN5 R codes 999 two-sided original (08-01-2023).csv") %>% as_tibble
+LISA.mod <- read.csv("crack counts KNN5 R codes 999 two-sided moderate (08-01-2023).csv") %>% as_tibble
+LISA.perm.i <- read.csv("crack counts KNN5 R codes 999 two-sided permute i (08-01-2023).csv") %>% as_tibble
+LISA.both <- read.csv("crack counts KNN5 R codes 999 two-sided moderate permute i (08-01-2023).csv") %>% as_tibble
 
-LISA_C.rel <- LISA.rel[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-LISA_C.abs.1 <- LISA.abs.1[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-LISA_C.abs.t_1 <- LISA.abs.t_1[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-county.names <- LISA.rel[, 1:3]
+LISA_C.org <- LISA.org[,c(1:3, grep("LISA_C", names(LISA.org)))]
+LISA_C.mod <- LISA.mod[,c(1:3, grep("LISA_C", names(LISA.mod)))]
+LISA_C.perm.i <- LISA.perm.i[,c(1:3, grep("LISA_C", names(LISA.perm.i)))]
+LISA_C.both <- LISA.both[,c(1:3, grep("LISA_C", names(LISA.both)))]
+county.names <- LISA_C.org[, 1:3]
 
 LISA_C_to_Month <- function(col_names) {
   col_names <- gsub("0", "2020", col_names)
@@ -109,9 +121,10 @@ LISA_C_to_Month <- function(col_names) {
   return(col_names)
 }
 
-names(LISA_C.rel)[4:51] <- LISA_C_to_Month(names(LISA_C.rel)[4:51])
-names(LISA_C.abs.1)[4:51] <- LISA_C_to_Month(names(LISA_C.abs.1)[4:51])
-names(LISA_C.abs.t_1)[4:51] <- LISA_C_to_Month(names(LISA_C.abs.t_1)[4:51])
+names(LISA_C.org)[4:51] <- LISA_C_to_Month(names(LISA_C.org)[4:51])
+names(LISA_C.mod)[4:51] <- LISA_C_to_Month(names(LISA_C.mod)[4:51])
+names(LISA_C.perm.i)[4:51] <- LISA_C_to_Month(names(LISA_C.perm.i)[4:51])
+names(LISA_C.both)[4:51] <- LISA_C_to_Month(names(LISA_C.both)[4:51])
 
 
 {
@@ -158,348 +171,112 @@ names(LISA_C.abs.t_1)[4:51] <- LISA_C_to_Month(names(LISA_C.abs.t_1)[4:51])
     select(state:GEOID)
 }
 
+{
+LISA_C.org.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.org[,-(1:2)], by = "GEOID")
+LISA_C.org.map <- LISA_C.org.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
+LISA_C.org.map$LISA_C <- factor(LISA_C.org.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig."))
+LISA_C.org.map$Month_Year <- parse_date(LISA_C.org.map$Month_Year, "%Y-%m")
 
-# Number of HL maps
-n_HL_map <- function(row) {
-  result <- ifelse(sum(is.na(row) == length(row)),
-                   NA, sum(row==4, na.rm=T))
-  return(result)
+LISA_C.mod.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.mod[,-(1:2)], by = "GEOID")
+LISA_C.mod.map <- LISA_C.mod.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
+LISA_C.mod.map$LISA_C <- factor(LISA_C.mod.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig."))
+LISA_C.mod.map$Month_Year <- parse_date(LISA_C.mod.map$Month_Year, "%Y-%m")
+
+LISA_C.perm.i.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.perm.i[,-(1:2)], by = "GEOID")
+LISA_C.perm.i.map <- LISA_C.perm.i.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
+LISA_C.perm.i.map$LISA_C <- factor(LISA_C.perm.i.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig."))
+LISA_C.perm.i.map$Month_Year <- parse_date(LISA_C.perm.i.map$Month_Year, "%Y-%m")
+
+LISA_C.both.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.both[,-(1:2)], by = "GEOID")
+LISA_C.both.map <- LISA_C.both.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
+LISA_C.both.map$LISA_C <- factor(LISA_C.both.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig."))
+LISA_C.both.map$Month_Year <- parse_date(LISA_C.both.map$Month_Year, "%Y-%m")
 }
-LISA_n_HL <- LISA_C.rel
-for (year in 2018:2021) {
-  LISA_C_index <- grep(year, names(LISA_n_HL))
-  LISA_n_HL[[paste("n_HL", year, sep="_")]] <- apply(LISA_n_HL[,LISA_C_index], 1, n_HL_map)
-}
-LISA_n_HL <- LISA_n_HL %>% select(state:GEOID, n_HL_2018:n_HL_2021)
-LISA_n_HL$n_HL_All <- apply(LISA_n_HL[, 4:7], 1, sum)
-LISA_n_HL.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_n_HL[,c(3:8)], by = "GEOID")
-LISA_n_HL.map %>% pivot_longer(-c(long, lat, group, GEOID, state, county, n_HL_All), names_to="year", values_to="n_HL_year") %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=n_HL_year)) +
+
+
+# comparison of results for a month, Jan 2020
+LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", size = .05) +
-  facet_wrap(. ~ year) +
-  scale_fill_viridis_c(na.value="white") +
-  labs(fill = "# of HL") + 
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="orignial") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> n_HL_map
-# ggsave("crack n_HL annual (rel).jpg", n_HL_map, width=20, height=15, units="cm")
+        panel.grid.minor = element_blank()) -> LISA_C_org_map
 
-LISA_n_HL.map %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=n_HL_All)) +
+LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", size = .05) +
-  scale_fill_viridis_c(na.value="white") +
-  labs(fill = "# of HL", title="# of HL 2018-2021 (Crack)") + 
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="mod") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> n_HL_map_all
-# ggsave("crack n_HL 2018-2021 (rel).jpg", n_HL_map_all, width=20, height=15, units="cm")
+        panel.grid.minor = element_blank()) -> LISA_C_mod_map
 
-
-LISA_C.rel.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.rel[,-(1:2)], by = "GEOID")
-LISA_C.rel.map <- LISA_C.rel.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-ref <- tibble(LISA_C=0:4, label=c("Insig", "HH", "LL", "LH", "HL"))
-LISA_C.rel.map$LISA_C <- left_join(LISA_C.rel.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.rel.map$LISA_C <- factor(LISA_C.rel.map$LISA_C)
-LISA_C.rel.map$Month_Year <- parse_date(LISA_C.rel.map$Month_Year, "%Y-%m")
-
-for (year in 2018:2021) { # monthly maps of LISA_C.rel
-  LISA_C.rel.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_rel") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("Crack_Count_LISA_C_rel_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
-
-LISA_C.abs1.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.abs.1[,-(1:2)], by = "GEOID")
-LISA_C.abs1.map <- LISA_C.abs1.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.abs1.map$LISA_C <- left_join(LISA_C.abs1.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.abs1.map$LISA_C <- factor(LISA_C.abs1.map$LISA_C)
-LISA_C.abs1.map$Month_Year <- parse_date(LISA_C.abs1.map$Month_Year, "%Y-%m")
-
-for (year in 2018:2021) { # monthly maps of LISA_C.abs1
-  LISA_C.abs1.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_abs1") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("Crack_Count_LISA_C_abs1_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
-
-LISA_C.abs_t1.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.abs.t_1[,-(1:2)], by = "GEOID")
-LISA_C.abs_t1.map <- LISA_C.abs_t1.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.abs_t1.map$LISA_C <- left_join(LISA_C.abs_t1.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.abs_t1.map$LISA_C <- factor(LISA_C.abs_t1.map$LISA_C)
-LISA_C.abs_t1.map$Month_Year <- parse_date(LISA_C.abs_t1.map$Month_Year, "%Y-%m")
-
-for (year in 2018:2021) { # monthly maps of LISA_C.abs_t1
-  LISA_C.abs_t1.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_abs_t1") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("Crack_Count_LISA_C_abs_t1_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
-
-
-### For other cocaine
-coords.cocaine <- counties.obs %>% filter(GEOID %in% cocaine$GEOID) %>%
-  group_by(GEOID) %>% summarise(x=mean(long), y=mean(lat))
-GEOIDS.cocaine <- coords.cocaine$GEOID
-coords.cocaine <- coords.cocaine[,-1]
-nb_cocaine <- knn2nb(knearneigh(coords.cocaine, k=5), row.names=GEOIDS.cocaine)
-
-cocaine <- cbind(cocaine, matrix(0, nrow(cocaine), 48*3)) %>% as_tibble
-names(cocaine)[(which(names(cocaine) == "1"):which(names(cocaine) == "144"))] <- names(LISA3)[71:214]
-Jan_2018_index <- grep("Jan_2018", names(cocaine))[1]
-LISA_I.index <- grep("LISA_I", names(cocaine))[1]
-nb.obj.cocaine <- nb2listw(nb_cocaine, style="B")
-nrow(cocaine) # 1070
-seizures.cocaine <- cocaine[, 5:52]
-
-relative.MoransI <- cocaine
-set.seed(100)
-for (i in 1:48) {
-  seizure.cocaine <- t(seizures.cocaine)[i,]
-  localM.month <- localmoran_abs(seizure.cocaine, nb.obj.cocaine, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided")
-  localM.month$LISA_C <- ifelse(localM.month$quadr=="High-High", 1,
-                                ifelse(localM.month$quadr=="Low-Low", 2,
-                                       ifelse(localM.month$quadr=="Low-High", 3, 4)))
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, 0)
-  relative.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-}
-
-# write.csv(relative.MoransI, "cocaine other counts KNN5 R codes 999 two-sided relative (02-21-2023).csv", row.names=F)
-
-absolute.b1.MoransI <- cocaine
-x.bar_p <- mean(absolute.b1.MoransI$Jan_2018)
-set.seed(300)
-for (i in 1:48) {
-  seizure.cocaine <- t(seizures.cocaine)[i,]
-  localM.month <- localmoran_abs(seizure.cocaine, nb.obj.cocaine, nsim=nperm, zero.policy=T, xx=x.bar_p, alternative="two.sided")
-  localM.month$LISA_C <- ifelse(localM.month$quadr=="High-High", 1,
-                                ifelse(localM.month$quadr=="Low-Low", 2,
-                                       ifelse(localM.month$quadr=="Low-High", 3, 4)))
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, 0)
-  absolute.b1.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-}
-
-# write.csv(absolute.b1.MoransI, "cocaine other counts KNN5 R codes 999 two-sided absolute base_1 (02-21-2023).csv", row.names=F)
-
-absolute.t1.MoransI <- cocaine
-x.bar_p <- mean(absolute.t1.MoransI$Jan_2018)
-set.seed(500)
-for (i in 1:48) {
-  seizure.cocaine <- t(seizures.cocaine)[i,]
-  localM.month <- localmoran_abs(seizure.cocaine, nb.obj.cocaine, nsim=nperm, zero.policy=T, xx=x.bar_p, alternative="two.sided")
-  localM.month$LISA_C <- ifelse(localM.month$quadr=="High-High", 1,
-                                ifelse(localM.month$quadr=="Low-Low", 2,
-                                       ifelse(localM.month$quadr=="Low-High", 3, 4)))
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, 0)
-  absolute.t1.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-  x.bar_p <- mean(as.data.frame(cocaine)[,Jan_2018_index+i-1])
-}
-
-# write.csv(absolute.t1.MoransI, "cocaine other counts KNN5 R codes 999 two-sided absolute base_t1 (02-21-2023).csv", row.names=F)
-
-# Other Cocaine Plots
-LISA.rel <- read.csv("cocaine other counts KNN5 R codes 999 two-sided relative (02-21-2023).csv") %>% as_tibble
-LISA.abs.1 <- read.csv("cocaine other counts KNN5 R codes 999 two-sided absolute base_1 (02-21-2023).csv") %>% as_tibble
-LISA.abs.t_1 <- read.csv("cocaine other counts KNN5 R codes 999 two-sided absolute base_t1 (02-21-2023).csv") %>% as_tibble
-
-LISA_C.rel <- LISA.rel[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-LISA_C.abs.1 <- LISA.abs.1[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-LISA_C.abs.t_1 <- LISA.abs.t_1[,c(1:3, grep("LISA_C", names(LISA.rel)))]
-county.names <- LISA.rel[, 1:3]
-
-names(LISA_C.rel)[4:51] <- LISA_C_to_Month(names(LISA_C.rel)[4:51])
-names(LISA_C.abs.1)[4:51] <- LISA_C_to_Month(names(LISA_C.abs.1)[4:51])
-names(LISA_C.abs.t_1)[4:51] <- LISA_C_to_Month(names(LISA_C.abs.t_1)[4:51])
-
-
-# Number of HL maps
-n_HL_map <- function(row) {
-  result <- ifelse(sum(is.na(row) == length(row)),
-                   NA, sum(row==4, na.rm=T))
-  return(result)
-}
-LISA_n_HL <- LISA_C.rel
-for (year in 2018:2021) {
-  LISA_C_index <- grep(year, names(LISA_n_HL))
-  LISA_n_HL[[paste("n_HL", year, sep="_")]] <- apply(LISA_n_HL[,LISA_C_index], 1, n_HL_map)
-}
-LISA_n_HL <- LISA_n_HL %>% select(state:GEOID, n_HL_2018:n_HL_2021)
-LISA_n_HL$n_HL_All <- apply(LISA_n_HL[, 4:7], 1, sum)
-LISA_n_HL.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_n_HL[,c(3:8)], by = "GEOID")
-LISA_n_HL.map %>% pivot_longer(-c(long, lat, group, GEOID, state, county, n_HL_All), names_to="year", values_to="n_HL_year") %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=n_HL_year)) +
+LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", size = .05) +
-  facet_wrap(. ~ year) +
-  scale_fill_viridis_c(na.value="white") +
-  labs(fill = "# of HL") + 
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="perm i") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> n_HL_map
-# ggsave("other cocaine n_HL annual (rel).jpg", n_HL_map, width=20, height=15, units="cm")
+        panel.grid.minor = element_blank()) -> LISA_C_perm.i_map
 
-LISA_n_HL.map %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=n_HL_All)) +
+LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", size = .05) +
-  scale_fill_viridis_c(na.value="white") +
-  labs(fill = "# of HL", title="# of HL 2018-2021 (other cocaine )") + 
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="both") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> n_HL_map_all
-# ggsave("other cocaine n_HL 2018-2021 (rel).jpg", n_HL_map_all, width=20, height=15, units="cm")
+        panel.grid.minor = element_blank()) -> LISA_C_both_map
 
-LISA_C.rel.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.rel[,-(1:2)], by = "GEOID")
-LISA_C.rel.map <- LISA_C.rel.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.rel.map$LISA_C <- left_join(LISA_C.rel.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.rel.map$LISA_C <- factor(LISA_C.rel.map$LISA_C)
-LISA_C.rel.map$Month_Year <- parse_date(LISA_C.rel.map$Month_Year, "%Y-%m")
+grid.arrange(LISA_C_org_map, LISA_C_mod_map, LISA_C_perm.i_map, LISA_C_both_map, ncol=2)
+# ggsave("Crack_Count_LISA_C original two-sided (Jan 2020).pdf", LISA_C_org_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C moderate two-sided (Jan 2020).pdf", LISA_C_mod_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C permute i two-sided (Jan 2020).pdf", LISA_C_perm.i_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C moderate permute i two-sided (Jan 2020).pdf", LISA_C_both_map, width=15, height=10, units="cm")
 
-for (year in 2018:2021) { # monthly maps of LISA_C.rel
-  LISA_C.rel.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_rel") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("cocaine_other_counts_LISA_C_rel_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
 
-LISA_C.abs1.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.abs.1[,-(1:2)], by = "GEOID")
-LISA_C.abs1.map <- LISA_C.abs1.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.abs1.map$LISA_C <- left_join(LISA_C.abs1.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.abs1.map$LISA_C <- factor(LISA_C.abs1.map$LISA_C)
-LISA_C.abs1.map$Month_Year <- parse_date(LISA_C.abs1.map$Month_Year, "%Y-%m")
+# comparison of summaries for 2018-2021
+most_frequent_label <- LISA_C.org[,1:3]
+most_frequent_label$original <- LISA_C.org[,-(1:3)] %>% apply(1, table) %>% sapply(function(x) return(names(x)[order(x, decreasing=T)][1]))
+most_frequent_label$moderate <- LISA_C.mod[,-(1:3)] %>% apply(1, table) %>% sapply(function(x) return(names(x)[order(x, decreasing=T)][1]))
+most_frequent_label$perm.i <- LISA_C.perm.i[,-(1:3)] %>% apply(1, table) %>% sapply(function(x) return(names(x)[order(x, decreasing=T)][1]))
+most_frequent_label$both <- LISA_C.both[,-(1:3)] %>% apply(1, table) %>% sapply(function(x) return(names(x)[order(x, decreasing=T)][1]))
+most_frequent_label[,-(1:3)] %>% apply(2, table)
 
-for (year in 2018:2021) { # monthly maps of LISA_C.abs1
-  LISA_C.abs1.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_abs1") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("cocaine_other_counts_LISA_C_abs1_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
+# perm.i has the highest number of HH
+# moderate and both have slightly higher number of Insignificant due to the introduction of a new label "M",
+# which can reduce the number of each significant label and thus can make Insignificant the most frequent label for some counties
+changed_counties_moderate <- which(most_frequent_label$original != most_frequent_label$moderate)
+changed_counties_perm.i <- which(most_frequent_label$original != most_frequent_label$perm.i)
+changed_counties_both <- which(most_frequent_label$original != most_frequent_label$both)
 
-LISA_C.abs_t1.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.abs.t_1[,-(1:2)], by = "GEOID")
-LISA_C.abs_t1.map <- LISA_C.abs_t1.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.abs_t1.map$LISA_C <- left_join(LISA_C.abs_t1.map[, 7:8], ref, by="LISA_C")$label
-LISA_C.abs_t1.map$LISA_C <- factor(LISA_C.abs_t1.map$LISA_C)
-LISA_C.abs_t1.map$Month_Year <- parse_date(LISA_C.abs_t1.map$Month_Year, "%Y-%m")
-
-for (year in 2018:2021) { # monthly maps of LISA_C.abs_t1
-  LISA_C.abs_t1.map %>% filter(year(Month_Year) == year & month(Month_Year) %in% 1:4) %>% 
-    ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-    geom_polygon(color = "#000000", size = .05) +
-    facet_wrap(. ~ substr(Month_Year, 1, 7)) +
-    scale_fill_manual(values = c("Insig"="grey60",
-                                 "LL"="blue",
-                                 "LH"="steelblue",
-                                 "HL"="orange",
-                                 "HH"="red"),
-                      na.value = "white") +
-    labs(fill = "LISA_C_abs_t1") + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> LISA_C_map
-  ggsave(paste("cocaine_other_counts_LISA_C_abs_t1_", year, " two-sided (4 months).jpg", sep=""), LISA_C_map, width=20, height=15, units="cm")
-}
-
-# check seizure counts in SW area
-for (drug in c("crack", "cocaine other", "meth", "marijuana")) {
-  LISA.rel <- read.csv(paste(drug, "counts KNN5 R codes 999 two-sided relative (02-21-2023).csv")) %>% as_tibble
-  LISA.rel.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA.rel[, c(3, 5:52)], by = "GEOID")
-  LISA.rel.map <- LISA.rel.map %>% 
-    pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts") %>% 
-    mutate(Year=as.integer(substr(Month_Year, 5,8)))
-  LISA.rel.map <- left_join(LISA.rel.map, populations[, -(1:2)], by=c("GEOID", "Year"))
-  LISA.rel.map$counts_per_pop <- LISA.rel.map$seizure_counts/LISA.rel.map$population
-  LISA.rel.map$Month_Year <- parse_date(LISA.rel.map$Month_Year, "%b_%Y")
-  
-  seizure_counts <- aggregate(cbind(long, lat) ~ GEOID+seizure_counts,
-                              data=LISA.rel.map %>% filter(state %in% c("Arizona", "California", "Nevada") & Month_Year=="2020-01-01"), 
-                              FUN=function(x) mean(range(x)))
-  LISA.rel.map %>% filter(state %in% c("Arizona", "California", "Nevada")) %>% 
-    ggplot(mapping = aes(x=long, y=lat)) +
-    geom_polygon(aes(group = group), fill=NA, color = "#000000", size = .05) +
-    geom_text(data=seizure_counts, aes(x=long, y=lat, label=seizure_counts), size=2) +
-    labs(title=paste(drug, "seizure counts in Jan 2020"))+
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> seizure_map
-  ggsave(paste(drug, "seizure counts of AZ-CA-NV Jan_2020.jpg"), seizure_map, width=8, height=10, units="cm")
-}
-
-for (drug in c("crack", "cocaine other", "meth", "marijuana")) {
-  LISA.rel <- read.csv(paste(drug, "counts KNN5 R codes 999 two-sided (relative).csv")) %>% as_tibble
-  LISA.rel.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA.rel[, c(3, 5:52)], by = "GEOID")
-  LISA.rel.map <- LISA.rel.map %>% 
-    pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts") %>% 
-    mutate(Year=as.integer(substr(Month_Year, 5,8)))
-  LISA.rel.map <- left_join(LISA.rel.map, populations[, -(1:2)], by=c("GEOID", "Year"))
-  LISA.rel.map$counts_per_pop <- LISA.rel.map$seizure_counts/LISA.rel.map$population
-  LISA.rel.map$Month_Year <- parse_date(LISA.rel.map$Month_Year, "%b_%Y")
-  
-  seizure_counts <- aggregate(cbind(long, lat) ~ GEOID+seizure_counts,
-                              data=LISA.rel.map %>% filter(state %in% c("Arizona", "California", "Nevada") & Month_Year=="2020-01-01"), 
-                              FUN=function(x) mean(range(x)))
-  LISA.rel.map %>% filter(state %in% c("Arizona", "California", "Nevada")) %>% 
-    ggplot(mapping = aes(x=long, y=lat)) +
-    geom_polygon(aes(group = group), fill=NA, color = "#000000", size = .05) +
-    geom_text(data=seizure_counts, aes(x=long, y=lat, label=seizure_counts), size=2) +
-    labs(title=paste(drug, "seizure counts in Jan 2020 (less missing)"))+
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) -> seizure_map
-  ggsave(paste(drug, "seizure counts of AZ-CA-NV Jan_2020 (less missing).jpg"), seizure_map, width=8, height=10, units="cm")
-}
-
-crack <- read.csv(paste("crack", "counts KNN5 R codes 999 two-sided relative (02-21-2023).csv")) %>% as_tibble
-crack_less <- read.csv(paste("crack", "counts KNN5 R codes 999 two-sided (relative).csv")) %>% as_tibble
-crack_less %>% filter(!(GEOID %in% crack$GEOID))
+most_frequent_label[changed_counties_moderate, -c(6, 7)]
+most_frequent_label[changed_counties_perm.i, -c(5, 7)]
+most_frequent_label[changed_counties_both, -c(5, 6)]

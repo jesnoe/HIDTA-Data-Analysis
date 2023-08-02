@@ -388,11 +388,12 @@ localmoran_abs <- function (x, listw, nsim = 499L, zero.policy = NULL, na.action
       if (perm.i) {
         zi <- sample(c(zi, z_i), size = nsim, replace = TRUE)
         z_i <- c(zi, z_i)
-      }else {
+      }
+      
       sz_i <- matrix(sample(z_i, size = crdi * nsim, replace = TRUE), 
                      ncol = crdi, nrow = nsim)
       lz_i <- sz_i %*% wtsi
-      }
+      
       
       if (binary == "binary") {
         res_p <- zi * lz_i
