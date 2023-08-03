@@ -565,8 +565,8 @@ lx_qunatile <- data.frame(table(lx))
 lx_qunatile$quantile <- cumsum(lx_qunatile$Freq) / sum(lx_qunatile$Freq)
 lx_qunatile #%>% write.csv("crack_Jan2020 sum of neighbors quantile.csv", row.names=F)
 
-simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, 19-xx, Inf), labels = lbs3_sim)
-simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, 36-lxx, Inf), labels = lbs3_sim)
+simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, xx+2*sd(x), Inf), labels = lbs3_sim)
+simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, Inf), labels = lbs_sim)
 
 # Other threshold for High/Low
 # simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 4-xx, Inf), labels = lbs_sim)
@@ -580,7 +580,7 @@ alpha_sim <- 0.05
 crd_sim <- length(listw_k$weights[[1]])
 wts_sim <- listw_k$weights[[1]]
 
-nsim <- 999
+nsim <- 9999
 simulated_z_pairs_tested <- simulated_z_pairs
 set.seed(100)
 for (i in 1:nrow(simulated_z_pairs_tested)) {
@@ -601,7 +601,7 @@ simulated_z_pairs_tested %>%
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(
-    # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
+    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
     ) +
@@ -611,7 +611,7 @@ simulated_z_pairs_tested %>%
                                 "HL"="orange",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> crack_Jan2020_sig_region
+  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=1) -> crack_Jan2020_sig_region
 # ggsave("Crack Significance Region in Jan 2020.png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
@@ -622,19 +622,27 @@ simulated_z_pairs_tested %>%
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
   ) +
-  scale_color_manual(breaks = c("Insig", "LL", "LM", "LH", "ML", "MM", "MH", "HL", "HM", "HH"),
-                     values = c("Insig"="grey60",
-                                "LL"="#4575b4",
-                                # "LM"="#74add1",
-                                "LH"="#abd9e9",
-                                "ML"="#e0f3f8",
-                                # "MM"="#ffffbf",
-                                "MH"="#fee090",
-                                "HL"="#fdae61",
-                                # "HM"="#f46d43",
-                                "HH"="#d73027",
-                                "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=0.7)# -> crack_Jan2020_sig_region_extended
+  scale_color_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red",
+                               "Obs."="black")) +
+  # scale_color_manual(breaks = c("Insig", "LL", "LM", "LH", "ML", "MM", "MH", "HL", "HM", "HH"),
+  #                    values = c("Insig"="grey60",
+  #                               "LL"="#4575b4",
+  #                               # "LM"="#74add1",
+  #                               "LH"="#abd9e9",
+  #                               "ML"="#e0f3f8",
+  #                               # "MM"="#ffffbf",
+  #                               "MH"="#fee090",
+  #                               "HL"="#fdae61",
+  #                               # "HM"="#f46d43",
+  #                               "HH"="#d73027",
+  #                               "Obs."="black")) +
+  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=1)# -> crack_Jan2020_sig_region_extended
 # ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=12, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 

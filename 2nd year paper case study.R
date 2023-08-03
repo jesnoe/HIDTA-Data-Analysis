@@ -63,7 +63,7 @@ for (i in 1:48) {
 
 moderate.MoransI <- crack
 x.bar_p <- mean(moderate.MoransI$Jan_2018)
-set.seed(300)
+set.seed(100)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T)
@@ -76,7 +76,7 @@ for (i in 1:48) {
 
 perm.i.MoransI <- crack
 x.bar_p <- mean(perm.i.MoransI$Jan_2018)
-set.seed(500)
+set.seed(100)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", perm.i=T)
@@ -89,7 +89,7 @@ for (i in 1:48) {
 
 both.MoransI <- crack
 x.bar_p <- mean(both.MoransI$Jan_2018)
-set.seed(500)
+set.seed(100)
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T, perm.i=T)
@@ -197,21 +197,21 @@ LISA_C.both.map$Month_Year <- parse_date(LISA_C.both.map$Month_Year, "%Y-%m")
 # comparison of results for a month, Jan 2020
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig."="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="orignial") + 
+  labs(fill = "LISA Labels", title="orignial", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_org_map
 
 LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig."="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -220,28 +220,28 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="mod") + 
+  labs(fill = "LISA Labels", title="moderate", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_mod_map
 
 LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig."="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="perm i") + 
+  labs(fill = "LISA Labels", title="permute i", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_perm.i_map
 
 LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", size = .05) +
+  geom_polygon(color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig."="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -250,7 +250,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="both") + 
+  labs(fill = "LISA Labels", title="both", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_both_map
@@ -280,3 +280,8 @@ changed_counties_both <- which(most_frequent_label$original != most_frequent_lab
 most_frequent_label[changed_counties_moderate, -c(6, 7)]
 most_frequent_label[changed_counties_perm.i, -c(5, 7)]
 most_frequent_label[changed_counties_both, -c(5, 6)]
+
+LISA_C.org[,-(1:3)] %>% flatten %>% unlist %>% table
+LISA_C.mod[,-(1:3)] %>% flatten %>% unlist %>% table
+LISA_C.perm.i[,-(1:3)] %>% flatten %>% unlist %>% table
+LISA_C.both[,-(1:3)] %>% flatten %>% unlist %>% table
