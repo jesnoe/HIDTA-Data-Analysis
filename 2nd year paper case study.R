@@ -261,6 +261,39 @@ grid.arrange(LISA_C_org_map, LISA_C_mod_map, LISA_C_perm.i_map, LISA_C_both_map,
 # ggsave("Crack_Count_LISA_C permute i two-sided (Jan 2020).pdf", LISA_C_perm.i_map, width=15, height=10, units="cm")
 # ggsave("Crack_Count_LISA_C moderate permute i two-sided (Jan 2020).pdf", LISA_C_both_map, width=15, height=10, units="cm")
 
+# NE states
+NE_states <- c("Michigan", "Illinois", "Ohio", "Indiana", "Pennsylvania", "New York", "New Hampshire", "New Jersey", "Rhode Island", "Massachusetts",
+               "Maryland", "Maine", "District of Columbia", "Delaware", "Vermont", "Virginia", "West Virginia", "Wisconsin", "Connecticut", "Kentucky")
+
+LISA_C.org.map %>% filter(state=="Massachusetts") %>%  select(county) %>% pull %>% unique()
+
+Baltimore_centroid <- LISA_C.org.map %>% filter(state == "Maryland" & county == "Baltimore city") %>% select(long, lat) %>% apply(2, mean)
+Boston_centroid <- LISA_C.org.map %>% filter(state == "Massachusetts" & county == "Suffolk County") %>% select(long, lat) %>% apply(2, mean)
+Chicago_centroid <- LISA_C.org.map %>% filter(state == "Illinois" & county == "Cook County") %>% select(long, lat) %>% apply(2, mean)
+Detroit_centroid <- LISA_C.org.map %>% filter(state == "Michigan" & county == "Wayne County") %>% select(long, lat) %>% apply(2, mean)
+Pittsburgh_centroid <- LISA_C.org.map %>% filter(state == "Pennsylvania" & county == "Allegheny County") %>% select(long, lat) %>% apply(2, mean)
+
+NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid) %>% as.data.frame
+NE_cities_centroid$LISA_C <- rep("1",5)
+
+LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  # geom_text(aes(x=-76.59252, y=39.27863, label=1)) +
+  labs(fill = "LISA Labels", title="orignial", x="", y="") + 
+  geom_text(data=NE_cities_centroid,
+            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+            size=10) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> NE_org_map
+
 
 # comparison of summaries for 2018-2021
 most_frequent_label <- LISA_C.org[,1:3]
