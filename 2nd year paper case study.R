@@ -285,14 +285,154 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  # geom_text(aes(x=-76.59252, y=39.27863, label=1)) +
-  labs(fill = "LISA Labels", title="orignial", x="", y="") + 
+  labs(fill = "LISA Labels", title="", x="", y="") + 
   geom_text(data=NE_cities_centroid,
             aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
-            size=10) +
+            size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) -> NE_org_map
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_org_map
+
+LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_text(data=NE_cities_centroid,
+            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_mod_map
+
+LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_text(data=NE_cities_centroid,
+            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_perm.i_map
+
+LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_text(data=NE_cities_centroid,
+            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_both_map
+
+# ggsave("Crack_Count_NE original two-sided (Jan 2020).pdf", NE_org_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_NE moderate two-sided (Jan 2020).pdf", NE_mod_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_NE permute i two-sided (Jan 2020).pdf", NE_perm.i_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_NE combined two-sided (Jan 2020).pdf", NE_both_map, width=15, height=10, units="cm")
+
+LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_org_map
+
+LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_mod_map
+
+LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_perm.i_map
+
+LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig."="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_both_map
+
+# ggsave("Crack_Count_FL original two-sided (Jan 2020).pdf", FL_org_map, width=10, height=8, units="cm")
+# ggsave("Crack_Count_FL moderate two-sided (Jan 2020).pdf", FL_mod_map, width=10, height=8, units="cm")
+# ggsave("Crack_Count_FL permute i two-sided (Jan 2020).pdf", FL_perm.i_map, width=10, height=8, units="cm")
+# ggsave("Crack_Count_FL combined two-sided (Jan 2020).pdf", FL_both_map, width=10, height=8, units="cm")
 
 
 # comparison of summaries for 2018-2021
