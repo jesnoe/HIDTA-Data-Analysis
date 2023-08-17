@@ -7,6 +7,7 @@ library(urbnmapr)
 library(tidyverse)
 library(gridExtra)
 library(lubridate)
+library(xtable)
 
 crack <- read.csv("cocaine crack count HIDTA (06-28-2023).csv") %>% as_tibble
 LISA3 <- read.csv("CountyKNN3.csv") %>% as_tibble %>% arrange(GEOID)
@@ -33,6 +34,7 @@ coords.crack <- counties.obs %>% filter(GEOID %in% crack$GEOID) %>%
 GEOIDS.crack <- coords.crack$GEOID
 coords.crack <- coords.crack[,-1]
 nb_crack <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
+nb.obj.crack <- nb2listw(nb_crack, style="B")
 
 alpha <- 0.05
 nperm <- 9999
@@ -43,7 +45,6 @@ crack <- cbind(crack, matrix(0, nrow(crack), 48*3)) %>% as_tibble
 names(crack)[(which(names(crack) == "1"):which(names(crack) == "144"))] <- names(LISA3)[71:214]
 Jan_2018_index <- grep("Jan_2018", names(crack))[1]
 LISA_I.index <- grep("LISA_I", names(crack))[1]
-nb.obj.crack <- nb2listw(nb_crack, style="B")
 nrow(crack) # 1518
 seizures.crack <- crack[, Jan_2018_index:(LISA_I.index-1)]
 
@@ -55,7 +56,7 @@ for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided")
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   original.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
@@ -68,7 +69,7 @@ for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T)
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   moderate.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
@@ -81,7 +82,7 @@ for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", perm.i=T)
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   perm.i.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
@@ -94,7 +95,7 @@ for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T, perm.i=T)
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
-  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig.")
+  localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   both.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
 
@@ -174,22 +175,22 @@ names(LISA_C.both)[4:51] <- LISA_C_to_Month(names(LISA_C.both)[4:51])
 {
 LISA_C.org.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.org[,-(1:2)], by = "GEOID")
 LISA_C.org.map <- LISA_C.org.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.org.map$LISA_C <- factor(LISA_C.org.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig."))
+LISA_C.org.map$LISA_C <- factor(LISA_C.org.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig"))
 LISA_C.org.map$Month_Year <- parse_date(LISA_C.org.map$Month_Year, "%Y-%m")
 
 LISA_C.mod.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.mod[,-(1:2)], by = "GEOID")
 LISA_C.mod.map <- LISA_C.mod.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.mod.map$LISA_C <- factor(LISA_C.mod.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig."))
+LISA_C.mod.map$LISA_C <- factor(LISA_C.mod.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig"))
 LISA_C.mod.map$Month_Year <- parse_date(LISA_C.mod.map$Month_Year, "%Y-%m")
 
 LISA_C.perm.i.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.perm.i[,-(1:2)], by = "GEOID")
 LISA_C.perm.i.map <- LISA_C.perm.i.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.perm.i.map$LISA_C <- factor(LISA_C.perm.i.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig."))
+LISA_C.perm.i.map$LISA_C <- factor(LISA_C.perm.i.map$LISA_C, levels=c("HH", "HL", "LH", "LL", "Insig"))
 LISA_C.perm.i.map$Month_Year <- parse_date(LISA_C.perm.i.map$Month_Year, "%Y-%m")
 
 LISA_C.both.map <- left_join(counties.obs[, c(1:2,6:7,10,12)], LISA_C.both[,-(1:2)], by = "GEOID")
 LISA_C.both.map <- LISA_C.both.map %>% pivot_longer(c(-long, -lat, -GEOID, -group, -state, -county), names_to="Month_Year", values_to="LISA_C")
-LISA_C.both.map$LISA_C <- factor(LISA_C.both.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig."))
+LISA_C.both.map$LISA_C <- factor(LISA_C.both.map$LISA_C, levels=c("HH", "HL", "MH", "ML", "LH", "LL", "Insig"))
 LISA_C.both.map$Month_Year <- parse_date(LISA_C.both.map$Month_Year, "%Y-%m")
 }
 
@@ -198,7 +199,7 @@ LISA_C.both.map$Month_Year <- parse_date(LISA_C.both.map$Month_Year, "%Y-%m")
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -212,7 +213,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>%
 LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -228,7 +229,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>%
 LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -242,7 +243,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>%
 LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -279,7 +280,7 @@ NE_cities_centroid$LISA_C <- rep("1",5)
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -298,7 +299,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
 LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -319,7 +320,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
 LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -338,7 +339,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
 LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -364,7 +365,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -380,7 +381,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>%
 LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -398,7 +399,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>%
 LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "HL"="orange",
@@ -414,7 +415,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>
 LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values = c("Insig."="grey60",
+  scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
                                "ML"="#abd9e9",
@@ -458,3 +459,76 @@ LISA_C.org[,-(1:3)] %>% flatten %>% unlist %>% table
 LISA_C.mod[,-(1:3)] %>% flatten %>% unlist %>% table
 LISA_C.perm.i[,-(1:3)] %>% flatten %>% unlist %>% table
 LISA_C.both[,-(1:3)] %>% flatten %>% unlist %>% table
+
+perm.i_HH_index <- which(LISA_C.perm.i == "HH", arr.ind=T) %>% as.data.frame
+label_check <- data.frame(org_label=perm.i_HH_index %>% apply(1, function(x) return(LISA_C.org[x[1], x[2]])) %>% unlist)
+label_check$perm.i_label <- perm.i_HH_index %>% apply(1, function(x) return(LISA_C.perm.i[x[1], x[2]])) %>% unlist
+new_HH_index <- perm.i_HH_index[with(label_check, which(org_label == "Insig" & perm.i_label == "HH")),]
+new_HH_seizure_counts <- data.frame(xi=new_HH_index %>% apply(1, function(x) return(LISA.perm.i[x[1], x[2]+1])) %>% unlist, row.names=NULL)
+new_HH_seizure_counts$sum_of_neighbors <- new_HH_index %>% apply(1, function(x) return(
+  lag.listw(nb.obj.crack, LISA.perm.i[,x[2]+1] %>% pull, zero.policy=T)[x[1]]
+  ))
+new_HH_seizure_counts$month <- new_HH_index %>% apply(1, function(x) return(names(LISA.perm.i)[x[2]+1])) %>% unlist
+
+head(new_HH_index)
+head(LISA.org[head(new_HH_index$row), 5] %>% pull)
+lag.listw(nb.obj.crack, LISA.perm.i[,5] %>% pull, zero.policy=T)[head(new_HH_index$row)]
+head(new_HH_seizure_counts)
+
+
+2*sd(LISA.perm.i$Jan_2020) # two standard error = 8.724866
+
+summary(lag.listw(nb.obj.crack, LISA.perm.i$Jan_2020, zero.policy=T))
+new_HH_seizure_counts %>% 
+  filter(month == "Jan_2020") %>%
+  ggplot(aes(x=sum_of_neighbors, y=xi)) +
+  geom_point() + xlim(0, 170)
+
+summary(lag.listw(nb.obj.crack, LISA.perm.i$Jan_2021, zero.policy=T))
+new_HH_seizure_counts %>% 
+  filter(month == "Jan_2021") %>%
+  ggplot(aes(x=sum_of_neighbors, y=xi)) +
+  geom_point() + xlim(0, 46)
+
+label_check_Jan_2020 <- tibble(org_label=LISA_C.org$`2020-01`,
+                               perm.i_label=LISA_C.perm.i$`2020-01`,
+                               moderate_label=LISA_C.mod$`2020-01`,
+                               both_label=LISA_C.both$`2020-01`)
+
+label_check_Jan_2020$state <- LISA.org$state
+label_check_Jan_2020$county <- LISA.org$county
+label_check_Jan_2020$seizure_count <- LISA.org$Jan_2020
+label_check_Jan_2020$sum_of_neighbors <- lag.listw(nb.obj.crack, LISA.org$Jan_2020, zero.policy=T)
+
+with(label_check_Jan_2020, org_label[which(org_label != perm.i_label)]) %>% table
+with(label_check_Jan_2020, perm.i_label[which(org_label != perm.i_label)]) %>% table
+
+label_check_Jan_2020 %>%
+  filter(org_label != perm.i_label) %>% 
+  select(state, county, org_label, perm.i_label, seizure_count, sum_of_neighbors) %>% 
+  arrange(org_label, perm.i_label, seizure_count, sum_of_neighbors) %>% 
+  as.data.frame -> Jan_2020_table
+
+label_check_Jan_2020$org_label %>% table
+label_check_Jan_2020$moderate_label %>% table
+label_check_Jan_2020$perm.i_label %>% table
+label_check_Jan_2020$both_label %>% table
+
+names(Jan_2020_table) <- c("State", "County", "Original", "Permute i", "Seizure Count ($x_i$)", "Sum of neighbors")
+Jan_2020_table
+xtable(Jan_2020_table %>% filter(Original == "HL"))
+xtable(Jan_2020_table %>% filter(Original == "LH"))
+xtable(Jan_2020_table %>% filter(Original == "Insig"))
+
+label_check_Jan_2020 %>%
+  filter(org_label == "HL" | perm.i_label == "HL") %>% 
+  select(state, county, org_label, perm.i_label, seizure_count, sum_of_neighbors) %>% 
+  arrange(org_label, perm.i_label, seizure_count, sum_of_neighbors) %>% 
+  as.data.frame
+
+label_check_Jan_2020 %>% filter(seizure_count > 8 & sum_of_neighbors > 3) %>% nrow # 31
+label_check_Jan_2020 %>% filter(org_label != "Insig" & seizure_count > 8 & sum_of_neighbors > 3) %>% nrow # 17
+label_check_Jan_2020 %>% filter(perm.i_label != "Insig" & seizure_count > 8 & sum_of_neighbors > 3) %>% nrow # 30
+
+
+

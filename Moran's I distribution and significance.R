@@ -618,7 +618,7 @@ simulated_z_pairs_tested %>%
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(
-    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
+    # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
   ) +
@@ -642,7 +642,7 @@ simulated_z_pairs_tested %>%
   #                               # "HM"="#f46d43",
   #                               "HH"="#d73027",
   #                               "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=1)# -> crack_Jan2020_sig_region_extended
+  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=1) -> crack_Jan2020_sig_region_extended
 # ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=12, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
