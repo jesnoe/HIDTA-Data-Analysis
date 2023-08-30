@@ -180,6 +180,42 @@ cocaine %>% filter(is.na(GEOID))
 cocaine # 1518 counties in total.
 # write.csv(cocaine, "cocaine other weight HIDTA (02-21-2023).csv", row.names=F)
 
+# Jan 2020 crack seizure figure
+coordinate_map <- coordinate.HIDTA
+names(coordinate_map)[10] <- "county"
+names(coordinate_map)[12] <- "state"
+
+crack.map <- left_join(coordinate_map[, c(1:2,6:7,10,12)], crack[, c(3, 5:52)], by = "GEOID")
+
+crack.map <- crack.map %>% 
+  select(long:state, Jan_2020) %>% 
+  pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts")
+
+crack.map %>%
+  mutate(seizure_counts=as.factor(seizure_counts)) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values=c("#440154E6", "orange", "blue", "red", "#bf812d", "black", "#003c30",
+                          "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
+                          "#3A5F8BE6", "#38658CE6", "#8ED44DE6", "green", "#FDE725E6"),
+                    na.value="white") +
+  labs(fill = "Seizure Counts", x="", y="") + 
+  theme_bw() + 
+  theme(legend.position="bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank()) -> seizure_counts_map
+# unique(ggplot_build(seizure_counts_map)$data[[1]]$fill)
+# ggsave("crack seizure counts map Jan_2020 (new colors).pdf", seizure_counts_map, width=18, height=16, units="cm")
+
+# scale_fill_manual(values=c("(-Inf,0]"="#440154E6", "(0,2]"="orange", "(2,4]"="blue", "(4,6]"="red", "(6,8]"="#bf812d", "(8,10]"="black",
+#                            "(10,12]"="#003c30", "(12,14]"="#44377AE6", "(14,16]"="#433D80E6", "(16,18]"="#414386E6", "(18,20]"="#404988E6", "(20,22]"="#3F4E88E6",
+#                            "(22,24]"="#3E5489E6", "(24,28]"="#3A5F8BE6", "(28,30]"="#38658CE6", "(30,38]"="#8ED44DE6", "(38,76]"="green", "(76,92]"="#FDE725E6"),
+#                   na.value="white") +
+
 # Annual figures of crack
 coordinate_map <- coordinate.HIDTA
 names(coordinate_map)[10] <- "county"
