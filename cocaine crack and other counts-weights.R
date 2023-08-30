@@ -195,7 +195,7 @@ crack.map %>%
   mutate(seizure_counts=as.factor(seizure_counts)) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values=c("#440154E6", "orange", "blue", "red", "#bf812d", "black", "#003c30",
+  scale_fill_manual(values=c("#440154E6", "orange", "blue", "red", "pink", "black", "#003c30",
                           "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
                           "#3A5F8BE6", "#38658CE6", "#8ED44DE6", "green", "#FDE725E6"),
                     na.value="white") +
