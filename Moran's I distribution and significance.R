@@ -643,7 +643,7 @@ simulated_z_pairs_tested %>%
   #                               "HH"="#d73027",
   #                               "Obs."="black")) +
   geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=1) -> crack_Jan2020_sig_region_extended
-# ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=12, height=10, units="cm")
+# ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
