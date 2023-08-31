@@ -192,12 +192,29 @@ crack.map <- crack.map %>%
   pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts")
 
 crack.map %>%
+  arrange(seizure_counts) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_viridis_c(alpha=0.9, na.value="white") +
+  labs(fill = "Seizure Counts", x="", y="") + 
+  theme_bw() + 
+  theme(legend.position="bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank()) -> seizure_counts_map
+unique(ggplot_build(seizure_counts_map)$data[[1]]$fill)
+
+
+crack.map %>%
   mutate(seizure_counts=as.factor(seizure_counts)) %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_manual(values=c("#440154E6", "orange", "blue", "red", "pink", "black", "#003c30",
-                          "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
-                          "#3A5F8BE6", "#38658CE6", "#8ED44DE6", "green", "#FDE725E6"),
+  scale_fill_manual(values=c("gray70", "#440154E6", "#450C59E6", "#45155FE6", "#461D64E6", "#46246AE6", "#452B6FE6",
+                             "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
+                             "#3A5F8BE6", "#38658CE6", "#2B7B8DE6", "#8ED44DE6", "#FDE725E6"),
                     na.value="white") +
   labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
@@ -208,13 +225,42 @@ crack.map %>%
         axis.text.y=element_blank(),
         axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank()) -> seizure_counts_map
-# unique(ggplot_build(seizure_counts_map)$data[[1]]$fill)
-# ggsave("crack seizure counts map Jan_2020 (new colors).pdf", seizure_counts_map, width=18, height=16, units="cm")
+# ggsave("crack seizure counts map Jan_2020 (gray 0).pdf", seizure_counts_map, width=18, height=16, units="cm")
 
-# scale_fill_manual(values=c("(-Inf,0]"="#440154E6", "(0,2]"="orange", "(2,4]"="blue", "(4,6]"="red", "(6,8]"="#bf812d", "(8,10]"="black",
-#                            "(10,12]"="#003c30", "(12,14]"="#44377AE6", "(14,16]"="#433D80E6", "(16,18]"="#414386E6", "(18,20]"="#404988E6", "(20,22]"="#3F4E88E6",
-#                            "(22,24]"="#3E5489E6", "(24,28]"="#3A5F8BE6", "(28,30]"="#38658CE6", "(30,38]"="#8ED44DE6", "(38,76]"="green", "(76,92]"="#FDE725E6"),
-#                   na.value="white") +
+crack.map %>%
+  mutate(seizure_counts=log(seizure_counts+1)) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_viridis_c(alpha=0.9, na.value="white") +
+  labs(fill = "Seizure Counts", x="", y="") + 
+  theme_bw() + 
+  theme(legend.position="bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank()) -> seizure_counts_map
+# ggsave("crack seizure counts map Jan_2020 (log scale).pdf", seizure_counts_map, width=18, height=16, units="cm")
+
+# crack.map %>%
+#   mutate(seizure_counts=as.factor(seizure_counts)) %>% 
+#   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+#   geom_polygon(color = "#000000", linewidth = .05) +
+#   scale_fill_manual(values=c("#440154E6", "orange", "blue", "red", "pink", "black", "#003c30",
+#                              "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
+#                              "#3A5F8BE6", "#38658CE6", "#8ED44DE6", "green", "#FDE725E6"),
+#                     na.value="white") +
+#   labs(fill = "Seizure Counts", x="", y="") + 
+#   theme_bw() + 
+#   theme(legend.position="bottom",
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.ticks.y=element_blank()) -> seizure_counts_map
+
 
 # Annual figures of crack
 coordinate_map <- coordinate.HIDTA
