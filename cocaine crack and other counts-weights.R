@@ -7,6 +7,7 @@ library(urbnmapr)
 library(tidyverse)
 library(gridExtra)
 library(lubridate)
+library(ggbreak)
 
 # urbnmapr data
 unique(countydata$county_fips) # some ips have 5 digits. need to be converted into integer.
@@ -243,6 +244,19 @@ crack.map %>%
         axis.ticks.y=element_blank()) -> seizure_counts_map
 # ggsave("crack seizure counts map Jan_2020 (log scale).pdf", seizure_counts_map, width=18, height=16, units="cm")
 
+crack %>% 
+  select(GEOID, Jan_2020) %>% 
+  ggplot(mapping = aes(Jan_2020)) +
+  geom_histogram(bins=100) +
+  xlab("Seizure Count") +
+  xlim(-1, 80) +
+  scale_x_break(breaks=c(25, 70),
+                ticklabels=c(70, 75, 80)) +
+  theme(axis.text.x.top=element_blank(),
+        axis.ticks.x.top=element_blank()) -> seizure_counts_hist
+
+# ggsave("crack seizure counts histogram Jan 2020.png", seizure_counts_hist, width=8, height=7, units="cm")
+
 # crack.map %>%
 #   mutate(seizure_counts=as.factor(seizure_counts)) %>% 
 #   ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
@@ -306,10 +320,10 @@ crack.map %>%
   # 2020 plots
 crack.map %>%
   filter(Year=="2020") %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts>0)) +
   geom_polygon(color = "#000000", linewidth = .05) +
-  scale_fill_viridis_c(alpha=0.9, na.value="white") +
-  labs(fill = "Seizure Counts", x="", y="") + 
+  # scale_fill_viridis_c(alpha=0.9, na.value="white") +
+  labs(fill = "Seizure Counts > 0", x="", y="") + 
   theme_bw() + 
   theme(legend.position="bottom",
         legend.key.size = unit(0.3, 'cm'),
@@ -323,13 +337,14 @@ crack.map %>%
         axis.text.y=element_blank(),
         axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank()) -> seizure_counts_map
+# ggsave("crack seizure counts map 2020 (seizure over 0).pdf", seizure_counts_map, width=18, height=16, units="cm")
 
 crack %>% 
   select(GEOID, `2020`) %>% 
   ggplot(mapping = aes(`2020`)) +
   geom_histogram(bins=100) +
   xlab("Seizure Count") -> seizure_counts_hist
-# ggsave("crack annual seizure counts histogram 2020.pdf", seizure_counts_hist, width=10, height=7, units="cm")
+# ggsave("crack seizure annual counts histogram 2020.pdf", seizure_counts_hist, width=10, height=7, units="cm")
 
 
 # ts plots

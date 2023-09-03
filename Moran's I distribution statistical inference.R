@@ -810,6 +810,18 @@ gamma_upper_bound_df <- data.frame(z=5:30,
 gamma_upper_bound_df %>% ggplot(aes(z, upper_tail_probability)) +
   geom_line()
 
+ub_binary <- function(ub, step, alpha) {
+  upper_tail_probability <- sum_of_neigh_gamma(ub, shape=shape_mle, rate=rate_mle, k=5, pi=0.92)
+  if (abs(upper_tail_probability - alpha) < 0.00001) {return(ub)}
+  if (upper_tail_probability > alpha) {
+    ub_binary(ub+step, step/2, alpha)
+  }else{
+    ub_binary(ub-step, step/2, alpha)
+  }
+}
+
+ub_binary(20, 5, 0.05)
+
 data.frame(z=seq(20, 22, by=0.01), 
            upper_tail_probability=sum_of_neigh_gamma(seq(20, 22, by=0.01), shape=shape_mle, rate=rate_mle, k=5, pi=0.92))[99:105,]
 
