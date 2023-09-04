@@ -277,9 +277,21 @@ Pittsburgh_centroid <- LISA_C.org.map %>% filter(state == "Pennsylvania" & count
 NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid) %>% as.data.frame
 NE_cities_centroid$LISA_C <- rep("1",5)
 
+NE_cities_centroid_1 <- NE_cities_centroid[1,-3]
+NE_cities_centroid_2 <- NE_cities_centroid[2,-3]
+NE_cities_centroid_3 <- NE_cities_centroid[3,-3]
+NE_cities_centroid_4 <- NE_cities_centroid[4,-3]
+NE_cities_centroid_5 <- NE_cities_centroid[5,-3]
+
+NE_cities_centroid_1 <- rbind(NE_cities_centroid_1, NE_cities_centroid_1 + 0.9*c(5,0))
+NE_cities_centroid_2 <- rbind(NE_cities_centroid_2, NE_cities_centroid_2 + 0.8*c(2,1))
+NE_cities_centroid_3 <- rbind(NE_cities_centroid_3, NE_cities_centroid_3 + 0.9*c(-5,0))
+NE_cities_centroid_4 <- rbind(NE_cities_centroid_4, NE_cities_centroid_4 + 0.8*c(2,1))
+NE_cities_centroid_5 <- rbind(NE_cities_centroid_5, NE_cities_centroid_5 + 0.9*c(0,4))
+
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", linewidth = .05) +
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C), color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -287,8 +299,36 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
                                "HH"="red"),
                     na.value = "white") +
   labs(fill = "LISA Labels", title="", x="", y="") + 
-  geom_text(data=NE_cities_centroid,
-            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -297,8 +337,8 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
         axis.ticks = element_blank()) -> NE_org_map
 
 LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", linewidth = .05) +
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C), color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -308,8 +348,36 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
                                "HH"="red"),
                     na.value = "white") +
   labs(fill = "LISA Labels", title="", x="", y="") + 
-  geom_text(data=NE_cities_centroid,
-            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -318,8 +386,8 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
         axis.ticks = element_blank()) -> NE_mod_map
 
 LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", linewidth = .05) +
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C), color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -327,8 +395,36 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
                                "HH"="red"),
                     na.value = "white") +
   labs(fill = "LISA Labels", title="", x="", y="") + 
-  geom_text(data=NE_cities_centroid,
-            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -337,8 +433,8 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
         axis.ticks = element_blank()) -> NE_perm.i_map
 
 LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
-  geom_polygon(color = "#000000", linewidth = .05) +
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C), color = "#000000", linewidth = .05) +
   scale_fill_manual(values = c("Insig"="grey60",
                                "LL"="blue",
                                "LH"="steelblue",
@@ -348,8 +444,36 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
                                "HH"="red"),
                     na.value = "white") +
   labs(fill = "LISA Labels", title="", x="", y="") + 
-  geom_text(data=NE_cities_centroid,
-            aes(x=long, y=lat, group=LISA_C, label=as.character(1:5)),
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=1) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -361,6 +485,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
 # ggsave("Crack_Count_NE moderate two-sided (Jan 2020).pdf", NE_mod_map, width=15, height=10, units="cm")
 # ggsave("Crack_Count_NE permute i two-sided (Jan 2020).pdf", NE_perm.i_map, width=15, height=10, units="cm")
 # ggsave("Crack_Count_NE combined two-sided (Jan 2020).pdf", NE_both_map, width=15, height=10, units="cm")
+
 
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
   ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
