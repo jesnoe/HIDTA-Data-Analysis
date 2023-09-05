@@ -895,9 +895,10 @@ for (i in 1:nrow(simulated_z_pairs_tested)) {
 }
 simulated_z_pairs_tested$LISA_C <- as.factor(simulated_z_pairs_tested$LISA_C)
 
-simulated_z_pairs_tested %>% 
+# simulated_z_pairs_tested_perm_i <- simulated_z_pairs_tested
+simulated_z_pairs_tested_perm_i %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
-  geom_point() +
+  geom_point(shape=15, size=5) +
   labs(
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
@@ -908,7 +909,8 @@ simulated_z_pairs_tested %>%
                                 "LH"="steelblue",
                                 "HL"="orange",
                                 "HH"="red")) -> crack_Jan2020_zi_perm_sig_region
-# ggsave("Crack z_i Permuted Significance Region in Jan 2020.png", crack_Jan2020_zi_perm_sig_region, width=15, height=10, units="cm")
+# ggsave("Crack z_i Permuted Significance Region in Jan 2020.png", crack_Jan2020_zi_perm_sig_region, width=12, height=8, units="cm")
+
 
 
 nb_crack_k <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
