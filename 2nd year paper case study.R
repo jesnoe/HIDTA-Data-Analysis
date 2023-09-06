@@ -301,19 +301,19 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
   labs(fill = "LISA Labels", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_2,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_3,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_4,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
@@ -350,19 +350,19 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
   labs(fill = "LISA Labels", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_2,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_3,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_4,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
@@ -397,19 +397,19 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
   labs(fill = "LISA Labels", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_2,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_3,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_4,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
@@ -446,19 +446,19 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
   labs(fill = "LISA Labels", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_2,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_3,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_4,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
-            linewidth=1) +
+            linewidth=0.3) +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
