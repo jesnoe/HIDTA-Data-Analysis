@@ -319,11 +319,18 @@ crack.map %>%
 
   # 2020 plots
 crack.map %>%
+  mutate(seizure_counts=as.factor(seizure_counts)) %>% 
   filter(Year=="2020") %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts>0)) +
+  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
   geom_polygon(color = "#000000", linewidth = .05) +
   # scale_fill_viridis_c(alpha=0.9, na.value="white") +
-  labs(fill = "Seizure Counts > 0", x="", y="") + 
+  scale_fill_manual(values=c("gray70", "#46296EE6", "#46276CE6", "#46256AE6", "#46246AE6", "#462369E6", "#462268E6", "#462167E6", "#461F66E6", "#461E65E6", "#461C63E6",
+                             "#461B63E6", "#461A62E6", "#453478E6", "#453377E6", "#453376E6", "#453175E6", "#453074E6", "#452F73E6", "#452E72E6", "#452D72E6", "#452B70E6", "#451860E6", "#451760E6",
+                             "#45155FE6", "#45145EE6", "#45135DE6", "#45125CE6", "#45105CE6", "#450F5BE6", "#450E5AE6", "#450C59E6", "#450A59E6", "#450958E6", "#443A7DE6", "#44397CE6", "#44387BE6",
+                             "#44377AE6", "#440757E6", "#440656E6", "#440456E6", "#440255E6", "#440154E6", "#433E81E6", "#433C7FE6", "#433B7EE6", "#424083E6", "#414787E6", "#414587E6", "#414487E6",
+                             "#404C88E6", "#404B88E6", "#404A88E6", "#3F5089E6", "#3F4F89E6", "#3D598AE6", "#37678CE6", "#2B818CE6", "#FDE725E6"),
+                    na.value="white") +
+  labs(fill = "Seizure Counts", x="", y="") + 
   theme_bw() + 
   theme(legend.position="bottom",
         legend.key.size = unit(0.3, 'cm'),
@@ -337,6 +344,7 @@ crack.map %>%
         axis.text.y=element_blank(),
         axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank()) -> seizure_counts_map
+unique(ggplot_build(seizure_counts_map)$data[[1]]$fill) %>% sort(decreasing=T)
 # ggsave("crack seizure counts map 2020 (seizure over 0).pdf", seizure_counts_map, width=18, height=16, units="cm")
 
 crack %>% 

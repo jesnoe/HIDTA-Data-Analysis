@@ -341,7 +341,7 @@ LISA_C.both.map %>%
 # ggsave("Aggregated LISA Results/Crack_Count_LISA_C moderate permute i two-sided (2020).pdf", LISA_C_both_map_2020, width=15, height=10, units="cm")
 
 # Significance Region
-permI_dist <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement) {
+permI_dist <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement, s2) {
   if (replacement==T) {
     sz_i_w_rep <- matrix(sample(z_i, size = crdi * nsim, replace = T), 
                          ncol = crdi, nrow = nsim)
@@ -363,7 +363,7 @@ permI_dist <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement) {
   return(result)
 }
 
-permI_dist_perm_z <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement) {
+permI_dist_perm_z <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement, s2) {
   if (replacement==T) {
     zi <- sample(c(zi, z_i), size = nsim, replace = T)
     sz_i_w_rep <- matrix(sample(z_i, size = crdi * nsim, replace = T), 
@@ -427,7 +427,7 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
       zi <- simulated_z_pairs_tested$z[i]
       sum_of_znj <- simulated_z_pairs_tested$sum_of_z_neigh[i]
       Ii <- zi*sum_of_znj/s2
-      I_perm_w_rep_sim <- permI_dist_perm_z(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T)
+      I_perm_w_rep_sim <- permI_dist_perm_z(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T, s2=s2)
       R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
       pseudo_p <- min(R_plus, nsim-R_plus)/(nsim+1)
       current_LISA_C <- simulated_z_pairs_tested$LISA_C[i]
@@ -439,7 +439,7 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
       zi <- simulated_z_pairs_tested$z[i]
       sum_of_znj <- simulated_z_pairs_tested$sum_of_z_neigh[i]
       Ii <- zi*sum_of_znj/s2
-      I_perm_w_rep_sim <- permI_dist(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T)
+      I_perm_w_rep_sim <- permI_dist(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T, s2=s2)
       R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
       pseudo_p <- (min(R_plus, nsim-R_plus)+1)/(nsim+1)
       current_LISA_C <- simulated_z_pairs_tested$LISA_C[i]
@@ -505,7 +505,18 @@ most_frequent_label[changed_counties_moderate, -c(6, 7)]
 most_frequent_label[changed_counties_perm.i, -c(5, 7)]
 most_frequent_label[changed_counties_both, -c(5, 6)]
 
-LISA_C.org[,-(1:3)] %>% flatten %>% unlist %>% table
+LISA.org[,4:6] %>% apply(2, table)
+LISA.org[,4:6] %>% apply(2, function(x) return(sum(x==0)))
+LISA.org[,4:6] %>% apply(2, function(x) return(sum(x==0)))/1518
+
+LISA_C.org[,-(1:3)] %>% pull(LISA_C_2019) %>% unlist %>% table
+LISA_C.org[,-(1:3)] %>% pull(LISA_C_2020) %>% unlist %>% table
+LISA_C.org[,-(1:3)] %>% pull(LISA_C_4years) %>% unlist %>% table
+
+LISA_C.perm.i[,-(1:3)] %>% pull(LISA_C_2019) %>% unlist %>% table
+LISA_C.perm.i[,-(1:3)] %>% pull(LISA_C_2020) %>% unlist %>% table
+LISA_C.perm.i[,-(1:3)] %>% pull(LISA_C_4years) %>% unlist %>% table
+
 LISA_C.mod[,-(1:3)] %>% flatten %>% unlist %>% table
 LISA_C.perm.i[,-(1:3)] %>% flatten %>% unlist %>% table
 LISA_C.both[,-(1:3)] %>% flatten %>% unlist %>% table
