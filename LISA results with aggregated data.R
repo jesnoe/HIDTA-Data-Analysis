@@ -340,6 +340,363 @@ LISA_C.both.map %>%
 # ggsave("Aggregated LISA Results/Crack_Count_LISA_C permute i two-sided (2020).pdf", LISA_C_perm.i_map_2020, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack_Count_LISA_C moderate permute i two-sided (2020).pdf", LISA_C_both_map_2020, width=15, height=10, units="cm")
 
+
+LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="orignial", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_org_map
+
+LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="moderate", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_mod_map
+
+LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="permute i", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_perm.i_map
+
+LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "ML"="#abd9e9",
+                               "MH"="#fee090",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="both", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_both_map
+
+grid.arrange(LISA_C_org_map, LISA_C_mod_map, LISA_C_perm.i_map, LISA_C_both_map, ncol=2)
+# ggsave("Crack_Count_LISA_C original two-sided (Jan 2020).pdf", LISA_C_org_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C moderate two-sided (Jan 2020).pdf", LISA_C_mod_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C permute i two-sided (Jan 2020).pdf", LISA_C_perm.i_map, width=15, height=10, units="cm")
+# ggsave("Crack_Count_LISA_C moderate permute i two-sided (Jan 2020).pdf", LISA_C_both_map, width=15, height=10, units="cm")
+
+# NE states
+NE_states <- c("Michigan", "Illinois", "Ohio", "Indiana", "Pennsylvania", "New York", "New Hampshire", "New Jersey", "Rhode Island", "Massachusetts",
+               "Maryland", "Maine", "District of Columbia", "Delaware", "Vermont", "Virginia", "West Virginia", "Wisconsin", "Connecticut", "Kentucky")
+
+LISA_C.org.map %>% filter(state=="Massachusetts") %>%  select(county) %>% pull %>% unique()
+
+Baltimore_centroid <- LISA_C.org.map %>% filter(state == "Maryland" & county == "Baltimore city") %>% select(long, lat) %>% apply(2, mean)
+Boston_centroid <- LISA_C.org.map %>% filter(state == "Massachusetts" & county == "Suffolk County") %>% select(long, lat) %>% apply(2, mean)
+Chicago_centroid <- LISA_C.org.map %>% filter(state == "Illinois" & county == "Cook County") %>% select(long, lat) %>% apply(2, mean)
+Detroit_centroid <- LISA_C.org.map %>% filter(state == "Michigan" & county == "Wayne County") %>% select(long, lat) %>% apply(2, mean)
+Pittsburgh_centroid <- LISA_C.org.map %>% filter(state == "Pennsylvania" & county == "Allegheny County") %>% select(long, lat) %>% apply(2, mean)
+
+NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid) %>% as.data.frame
+NE_cities_centroid$LISA_C <- rep("1",5)
+
+NE_cities_centroid_1 <- NE_cities_centroid[1,-3]
+NE_cities_centroid_2 <- NE_cities_centroid[2,-3]
+NE_cities_centroid_3 <- NE_cities_centroid[3,-3]
+NE_cities_centroid_4 <- NE_cities_centroid[4,-3]
+NE_cities_centroid_5 <- NE_cities_centroid[5,-3]
+
+NE_cities_centroid_1 <- rbind(NE_cities_centroid_1, NE_cities_centroid_1 + 0.9*c(5,0))
+NE_cities_centroid_2 <- rbind(NE_cities_centroid_2, NE_cities_centroid_2 + 0.8*c(2,1))
+NE_cities_centroid_3 <- rbind(NE_cities_centroid_3, NE_cities_centroid_3 + 0.9*c(-5,0))
+NE_cities_centroid_4 <- rbind(NE_cities_centroid_4, NE_cities_centroid_4 + 0.8*c(2,1))
+NE_cities_centroid_5 <- rbind(NE_cities_centroid_5, NE_cities_centroid_5 + 0.9*c(0,4))
+
+LISA_C.org.map %>% filter(state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C_4years), color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_org_map_4years
+
+LISA_C.org.map %>% filter(state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C_2019), color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_org_map_2019
+
+LISA_C.perm.i.map %>% filter(state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C_4years), color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_perm.i_map_4years
+
+LISA_C.perm.i.map %>% filter(state %in% NE_states) %>% 
+  ggplot(mapping = aes(long, lat)) +
+  geom_polygon(mapping = aes(group = group, fill=LISA_C_2019), color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  geom_path(data=NE_cities_centroid_1,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_2,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_3,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_4,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_5,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_text(data=NE_cities_centroid[c(2,4),],
+            aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
+            nudge_x = 2, nudge_y = 1,
+            size=5) +
+  geom_text(data=NE_cities_centroid[1,],
+            aes(x=long, y=lat, group=LISA_C, label="1"),
+            nudge_x = 5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[3,],
+            aes(x=long, y=lat, group=LISA_C, label="3"),
+            nudge_x = -5,
+            size=5) +
+  geom_text(data=NE_cities_centroid[5,],
+            aes(x=long, y=lat, group=LISA_C, label="5"),
+            nudge_y = 4,
+            size=5) +
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> NE_perm.i_map_2019
+
+# ggsave("Aggregated LISA Results/Crack_Count_NE original two-sided (2018-2021).pdf", NE_org_map_4years, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_NE original two-sided (2019).pdf", NE_org_map_2019, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_NE permute i two-sided (2018-2021).pdf", NE_perm.i_map_4years, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_NE permute i two-sided (2019).pdf", NE_perm.i_map_2019, width=15, height=10, units="cm")
+
+
+LISA_C.org.map %>% filter(state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C_4years)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_org_map_4years
+
+LISA_C.org.map %>% filter(state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C_2019)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_org_map_2019
+
+LISA_C.perm.i.map %>% filter(state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C_4years)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_perm.i_map_4years
+
+LISA_C.perm.i.map %>% filter(state == "Florida") %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C_2019)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red"),
+                    na.value = "white") +
+  labs(fill = "LISA Labels", title="", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) -> FL_perm.i_map_2019
+
+# ggsave("Aggregated LISA Results/Crack_Count_FL original two-sided (2018-2021).pdf", FL_org_map_4years, width=10, height=8, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_FL original two-sided (2019).pdf", FL_org_map_2019, width=10, height=8, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_FL permute i two-sided (2018-2021).pdf", FL_perm.i_map_4years, width=10, height=8, units="cm")
+# ggsave("Aggregated LISA Results/Crack_Count_FL permute i two-sided (2019).pdf", FL_perm.i_map_2019, width=10, height=8, units="cm")
+
 # Significance Region
 permI_dist <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement, s2) {
   if (replacement==T) {
@@ -387,7 +744,7 @@ permI_dist_perm_z <- function(zi, z_i, crdi, wtsi, nsim, Ii, replacement, s2) {
   return(result)
 }
 
-sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
+sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F, obs=T) {
   n <- length(x)
   xx <- mean(x)
   z <- x - xx
@@ -403,8 +760,10 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
   lz_simul <- lag.listw(listw, z)
   max_sum_of_z <- max(lz_simul)
   min_sum_of_z <- min(lz_simul)
-  simulated_z <- seq(min_z, max_z, by=(max_z-min_z)/100)
-  simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=(max_sum_of_z-min_sum_of_z)/100)
+  # simulated_z <- seq(min_z, max_z, by=(max_z-min_z)/100)
+  # simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=(max_sum_of_z-min_sum_of_z)/100)
+  simulated_z <- seq(min_z, max_z, by=2)
+  simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=2)
   simulated_z_pairs <- merge(simulated_z, simulated_sum_of_z) %>%
     mutate(z=x, sum_of_z_neigh=y) %>% 
     select(z, sum_of_z_neigh)
@@ -427,6 +786,18 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
       zi <- simulated_z_pairs_tested$z[i]
       sum_of_znj <- simulated_z_pairs_tested$sum_of_z_neigh[i]
       Ii <- zi*sum_of_znj/s2
+      if (i > 1 & sum_of_znj > min_sum_of_z) {
+        if (sum_of_znj == simulated_z_pairs_tested$sum_of_z_neigh[i-1]) {
+          all_HH <- simulated_z_pairs_tested %>% filter(sum_of_z_neigh==(sum_of_znj-2) & z >= zi)
+          unique_LISA_C <- unique(all_HH$LISA_C)
+          if (length(unique_LISA_C)==1) {
+            if (unique_LISA_C!="Insig" & unique_LISA_C==simulated_z_pairs_tested$LISA_C[i-1]) {
+              simulated_z_pairs_tested$LISA_C[i] <- simulated_z_pairs_tested$LISA_C[i-1]
+              next
+            }
+          }
+        }
+      }
       I_perm_w_rep_sim <- permI_dist_perm_z(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T, s2=s2)
       R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
       pseudo_p <- min(R_plus, nsim-R_plus)/(nsim+1)
@@ -439,6 +810,18 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
       zi <- simulated_z_pairs_tested$z[i]
       sum_of_znj <- simulated_z_pairs_tested$sum_of_z_neigh[i]
       Ii <- zi*sum_of_znj/s2
+      if (i > 1 & sum_of_znj > min_sum_of_z) {
+        if (sum_of_znj == simulated_z_pairs_tested$sum_of_z_neigh[i-1]) {
+          all_HH <- simulated_z_pairs_tested %>% filter(sum_of_z_neigh==(sum_of_znj-2) & z >= zi)
+          unique_LISA_C <- unique(all_HH$LISA_C)
+          if (length(unique_LISA_C)==1) {
+            if (unique_LISA_C==simulated_z_pairs_tested$LISA_C[i-1]) {
+              simulated_z_pairs_tested$LISA_C[i] <- simulated_z_pairs_tested$LISA_C[i-1]
+              next
+            }
+          }
+        }
+      }
       I_perm_w_rep_sim <- permI_dist(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T, s2=s2)
       R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
       pseudo_p <- (min(R_plus, nsim-R_plus)+1)/(nsim+1)
@@ -451,31 +834,47 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F) {
   simulated_z_pairs_tested$LISA_C <- as.factor(simulated_z_pairs_tested$LISA_C)
   
   observed_z_sum <- data.frame(z=z, lz=lz)
-  simulated_z_pairs_tested %>% 
-    ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
-    geom_point(size=0.9) +
-    labs(
-      title=paste0(data_period, " (k=5, M=", nsim, ")"),
-      x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-      y=expression(z[i])
-    ) +
-    scale_color_manual(values = c("Insig"="grey60",
-                                  "LL"="blue",
-                                  "LH"="steelblue",
-                                  "HL"="orange",
-                                  "HH"="red",
-                                  "Obs."="black")) +
-    geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_sig_region
+  if (obs) {
+    simulated_z_pairs_tested %>% 
+      ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+      geom_point(size=0.9) +
+      labs(
+        title=paste0(data_period, " (k=5, M=", nsim, ")"),
+        x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+        y=expression(z[i])
+      ) +
+      scale_color_manual(values = c("Insig"="grey60",
+                                    "LL"="blue",
+                                    "LH"="steelblue",
+                                    "HL"="orange",
+                                    "HH"="red",
+                                    "Obs."="black")) +
+      geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_sig_region
+  }else{
+    simulated_z_pairs_tested %>% 
+      ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+      geom_point(size=0.9) +
+      labs(
+        title=paste0(data_period, " (k=5, M=", nsim, ")"),
+        x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+        y=expression(z[i])
+      ) +
+      scale_color_manual(values = c("Insig"="grey60",
+                                    "LL"="blue",
+                                    "LH"="steelblue",
+                                    "HL"="orange",
+                                    "HH"="red")) -> z_sig_region
+  }
   return(z_sig_region)
 }
 
-org_sig_region_4years <- sig_region(x=seizure.crack_4years, listw=nb.obj.crack, data_period="2018-2021", nsim=9999, alpha_sim=0.05, perm.i=F)
-org_sig_region_2019 <- sig_region(x=seizure.crack_2019, listw=nb.obj.crack, data_period="2019", nsim=9999, alpha_sim=0.05, perm.i=F)
-org_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data_period="2020", nsim=9999, alpha_sim=0.05, perm.i=F)
+org_sig_region_4years <- sig_region(x=seizure.crack_4years, listw=nb.obj.crack, data_period="2018-2021", nsim=999, alpha_sim=0.05, perm.i=F, obs=F)
+org_sig_region_2019 <- sig_region(x=seizure.crack_2019, listw=nb.obj.crack, data_period="2019", nsim=999, alpha_sim=0.05, perm.i=F, obs=F)
+org_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data_period="2020", nsim=999, alpha_sim=0.05, perm.i=F)
 
-perm.i_sig_region_4years <- sig_region(x=seizure.crack_4years, listw=nb.obj.crack, data_period="2018-2021", nsim=9999, alpha_sim=0.05, perm.i=T)
-perm.i_sig_region_2019 <- sig_region(x=seizure.crack_2019, listw=nb.obj.crack, data_period="2019", nsim=9999, alpha_sim=0.05, perm.i=T)
-perm.i_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data_period="2020", nsim=9999, alpha_sim=0.05, perm.i=T)
+perm.i_sig_region_4years <- sig_region(x=seizure.crack_4years, listw=nb.obj.crack, data_period="2018-2021", nsim=999, alpha_sim=0.05, perm.i=T, obs=F)
+perm.i_sig_region_2019 <- sig_region(x=seizure.crack_2019, listw=nb.obj.crack, data_period="2019", nsim=999, alpha_sim=0.05, perm.i=T, obs=F)
+perm.i_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data_period="2020", nsim=999, alpha_sim=0.05, perm.i=T)
 # ggsave("Aggregated LISA Results/Crack Significance Region Original in 2018-2021.png", org_sig_region_4years, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Original in 2019.png", org_sig_region_2019, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Original in 2020.png", org_sig_region_2020, width=15, height=10, units="cm")
@@ -483,7 +882,9 @@ perm.i_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, d
 # ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2019.png", perm.i_sig_region_2019, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2020.png", perm.i_sig_region_2020, width=15, height=10, units="cm")
 
-
+# ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2018-2021.pdf", perm.i_sig_region_4years, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2019.png", perm.i_sig_region_2019, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2019.pdf", perm.i_sig_region_2019, width=15, height=10, units="cm")
 
 
 # comparison of summaries for 2018-2021
