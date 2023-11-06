@@ -125,7 +125,7 @@ LISA.both_agg$LISA_C_2020 <- LISA.both_2020$LISA_C
 # write.csv(LISA.perm.i_agg, "crack counts KNN5 R codes 999 two-sided permute i (aggregated).csv", row.names=F)
 # write.csv(LISA.both_agg, "crack counts KNN5 R codes 999 two-sided moderate permute i (aggregated).csv", row.names=F)
 
-# crack Plots
+## crack Plots
 LISA.org <- read.csv("crack counts KNN5 R codes 999 two-sided original (aggregated).csv") %>% as_tibble
 LISA.mod <- read.csv("crack counts KNN5 R codes 999 two-sided moderate (aggregated).csv") %>% as_tibble
 LISA.perm.i <- read.csv("crack counts KNN5 R codes 999 two-sided permute i (aggregated).csv") %>% as_tibble
@@ -837,7 +837,7 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F, obs=T) 
   if (obs) {
     simulated_z_pairs_tested %>% 
       ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
-      geom_point(size=0.9) +
+      geom_point(size=0.5) +
       labs(
         title=paste0(data_period, " (k=5, M=", nsim, ")"),
         x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
