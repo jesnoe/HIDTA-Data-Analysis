@@ -223,9 +223,9 @@ listw_k <- nb2listw(nb_crack_k, style="B")
 lz_simul <- lag.listw(listw_k, z, zero.policy = zero.policy, NAOK = NAOK)
 upper_bound <- 17.18
 min_sum_of_z <- min(lz_simul)
-simulated_z_Jan2018 <- seq(min_z, max_z, by=0.7)
-simulated_sum_of_z_Jan2018 <- seq(min_sum_of_z, upper_bound, by=0.25)
-simulated_z_pairs <- merge(simulated_z_Jan2018, simulated_sum_of_z_Jan2018) %>%
+simulated_z_Jan2020 <- seq(min_z, max_z, by=0.7)
+simulated_sum_of_z_Jan2020 <- seq(min_sum_of_z, upper_bound, by=0.25)
+simulated_z_pairs <- merge(simulated_z_Jan2020, simulated_sum_of_z_Jan2020) %>%
   mutate(z=x, sum_of_z_neigh=y) %>% 
   select(z, sum_of_z_neigh)
 simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, Inf), labels = lbs_sim)
@@ -269,13 +269,13 @@ for (i in 1:nrow(simulated_z_pairs_tested_perm_i)) {
 }
 simulated_z_pairs_tested_perm_i$LISA_C <- as.factor(simulated_z_pairs_tested_perm_i$LISA_C)
 
-df0 <- data.frame(x=min_sum_of_z, y=2)
+df0 <- data.frame(x=min_sum_of_z, y=1)
 simulated_z_pairs_tested %>% 
   ggplot() +
   geom_point(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point(data=df0, aes(x=x, y=y),
-             shape=1, size=10) +
-  labs(
+             shape=1, size=6) +
+  labs(color="",
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i]),

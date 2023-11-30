@@ -443,7 +443,7 @@ LISA_C.org.map %>% filter(state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -490,7 +490,7 @@ LISA_C.org.map %>% filter(state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -537,7 +537,7 @@ LISA_C.perm.i.map %>% filter(state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -584,7 +584,7 @@ LISA_C.perm.i.map %>% filter(state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +

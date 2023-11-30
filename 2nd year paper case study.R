@@ -205,7 +205,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="orignial", x="", y="") + 
+  labs(fill = "", title="orignial", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_org_map
@@ -221,7 +221,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="moderate", x="", y="") + 
+  labs(fill = "", title="moderate", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_mod_map
@@ -235,7 +235,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="permute i", x="", y="") + 
+  labs(fill = "", title="permute i", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_perm.i_map
@@ -251,7 +251,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="both", x="", y="") + 
+  labs(fill = "", title="both", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) -> LISA_C_both_map
@@ -298,7 +298,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -347,7 +347,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -394,7 +394,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -443,7 +443,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   geom_path(data=NE_cities_centroid_1,
             aes(x=long, y=lat),
             linewidth=0.3) +
@@ -496,7 +496,7 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -514,7 +514,7 @@ LISA_C.mod.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -530,7 +530,7 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -548,7 +548,7 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>%
                                "HL"="orange",
                                "HH"="red"),
                     na.value = "white") +
-  labs(fill = "LISA Labels", title="", x="", y="") + 
+  labs(fill = "", title="", x="", y="") + 
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
