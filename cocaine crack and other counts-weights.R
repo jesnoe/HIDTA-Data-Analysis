@@ -249,9 +249,9 @@ crack %>%
   ggplot(mapping = aes(Jan_2020)) +
   geom_histogram(bins=100) +
   xlab("Seizure Count") +
-  xlim(-1, 80) +
+  xlim(-1, 95) +
   scale_x_break(breaks=c(25, 70),
-                ticklabels=c(70, 75, 80)) +
+                ticklabels=c(75,90)) +
   theme(axis.text.x.top=element_blank(),
         axis.ticks.x.top=element_blank()) -> seizure_counts_hist
 

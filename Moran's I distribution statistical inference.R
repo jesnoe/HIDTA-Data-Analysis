@@ -12,7 +12,7 @@
   library(gridExtra)
   library(lubridate)
   library(lamW)
-  crack <- read.csv("cocaine crack count HIDTA (02-21-2023).csv") %>% as_tibble
+  crack <- read.csv("cocaine crack count HIDTA (06-28-2023).csv") %>% as_tibble
   LISA3 <- read.csv("CountyKNN3.csv") %>% as_tibble %>% arrange(GEOID)
   
   counties.obs <- counties
