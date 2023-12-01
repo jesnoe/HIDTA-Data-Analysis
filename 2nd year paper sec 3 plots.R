@@ -246,7 +246,7 @@ for (i in 1:nrow(simulated_z_pairs_tested)) {
   Ii <- zi*sum_of_znj/s2
   I_perm_w_rep_sim <- permI_dist(zi, z, crd_sim, wts_sim, nsim, Ii, replacement=T)
   R_plus <- sum(I_perm_w_rep_sim$I_perm[-(nsim+1)] >= Ii)
-  pseudo_p <- (min(R_plus, nsim-R_plus)+1)/(nsim+1)
+  pseudo_p <- (min(R_plus, nsim-R_plus)+1)/(nsim+1) # p-value for either lower or upper tail due to min
   current_LISA_C <- simulated_z_pairs_tested$LISA_C[i]
   simulated_z_pairs_tested$pseudo_p[i] <- pseudo_p
   simulated_z_pairs_tested$LISA_C[i] <- ifelse(pseudo_p > alpha_sim, "Insig", current_LISA_C)
