@@ -277,19 +277,19 @@ simulated_z_pairs_tested %>%
   ) +
   scale_color_manual(breaks = c("Insig", "LL", "LM", "LH", "ML", "MM", "MH", "HL", "HM", "HH", "Obs."),
                      values = c("Insig"="grey60",
-                                "LL"="#4575b4",
+                                "LL"="blue",
                                 # "LM"="#74add1",
-                                "LH"="#abd9e9",
+                                "LH"="steelblue",
                                 "ML"="#e0f3f8",
                                 # "MM"="#ffffbf",
                                 "MH"="#fee090",
-                                "HL"="#fdae61",
+                                "HL"="orange",
                                 # "HM"="#f46d43",
-                                "HH"="#d73027",
+                                "HH"="red",
                                 "Obs."="black")) +
   geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region_extended
-# ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=12, height=10, units="cm")
-# ggsave("Crack z_i Extended Permuted Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=12, height=10, units="cm")
+# ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
+# ggsave("Crack z_i Extended Permuted Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
