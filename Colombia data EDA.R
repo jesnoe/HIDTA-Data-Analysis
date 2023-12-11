@@ -1,4 +1,4 @@
-# setwd("/Users/euseongjang/Documents/R")
+# setwd("/Users/R")
 # setwd("C:/Users/gkfrj/Documents/R")
 library(fpp2)
 library(readxl)
