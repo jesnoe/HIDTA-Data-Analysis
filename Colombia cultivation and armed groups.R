@@ -1,0 +1,22 @@
+# setwd("/Users/R")
+# setwd("C:/Users/gkfrj/Documents/R")
+library(fpp2)
+library(readxl)
+library(urbnmapr)
+library(tidyverse)
+library(gridExtra)
+library(lubridate)
+library(colmaps)
+
+## check misspelling in regional names and correct
+cultivation <- read_xlsx("Colombia Data/Colombia Coca Cultivation 1999-2016 (Ha).xlsx")
+armed_groups <- list()
+armed_groups$y2008 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2008.xlsx")
+armed_groups$y2010 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2010.xlsx")
+armed_groups$y2011 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2011.xlsx")
+armed_groups$y2012 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2012.xlsx")
+armed_groups$y2013 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2013.xlsx")
+armed_groups$y2014 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2014.xlsx")
+armed_groups$y2016 <- read_xlsx("Colombia Data/Colombia-Armed groups-Paramilitar 2016.xlsx")
+
+armed_groups$y2008 %>% apply(1, function(x) sum(!is.na(x[-(1:4)])))

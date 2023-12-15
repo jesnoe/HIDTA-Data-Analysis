@@ -6,7 +6,9 @@ library(urbnmapr)
 library(tidyverse)
 library(gridExtra)
 library(lubridate)
+library(colmaps)
 
+## check misspelling in regional names and correct
 cultivation <- read_xlsx("Colombia Data/Colombia Coca Cultivation 1999-2016 (Ha).xlsx")
 eradication_aerial <- read_xlsx("Colombia Data/Colombia-Coca Erradication-1994-2021 Aerial (Ha).xlsx")
 eradication_manual <- read_xlsx("Colombia Data/Colombia-Coca Erradication-1994-2021 Manual (Ha).xlsx")
