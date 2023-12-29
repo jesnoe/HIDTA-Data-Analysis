@@ -270,17 +270,24 @@ for (i in 1:nrow(simulated_z_pairs_tested_perm_i)) {
 simulated_z_pairs_tested_perm_i$LISA_C <- as.factor(simulated_z_pairs_tested_perm_i$LISA_C)
 
 df0 <- data.frame(x=min_sum_of_z, y=1)
+df1 <- data.frame(x=c(upper_bound-3, upper_bound+0.5), y=c(2,2))
+df2 <- data.frame(x=c(upper_bound+0.5, upper_bound+0.5), y=c(2,-3))
+df3 <- data.frame(x=c(upper_bound-3, upper_bound-3), y=c(2,-3))
+df4 <- data.frame(x=c(upper_bound-3, upper_bound+0.5), y=c(-3,-3))
 simulated_z_pairs_tested %>% 
   ggplot() +
   geom_point(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point(data=df0, aes(x=x, y=y),
              shape=1, size=6) +
+  geom_line(data=df1, aes(x=x, y=y)) +
+  geom_line(data=df2, aes(x=x, y=y)) +
+  geom_line(data=df3, aes(x=x, y=y)) +
+  geom_line(data=df4, aes(x=x, y=y)) +
   labs(color="",
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i]),
   ) +
-  xlim(-5, 17.19) +
   # geom_text(aes(x=-2.5, y=50, label="Minor\n island"), color="black") +
   # geom_text(aes(x=10, y=50, label="Minor cluster"), color="black") +
   scale_color_manual(values = c("Insig"="grey60",
@@ -290,10 +297,6 @@ simulated_z_pairs_tested %>%
                                 "HH"="red")) -> crack_Jan2020_zi_sig_region
 # ggsave("Crack z_i Significance Region in Jan 2020 (zoom).png", crack_Jan2020_zi_sig_region, width=12, height=8, units="cm")
 
-df1 <- data.frame(x=c(min_sum_of_z-0.1, min_sum_of_z+0.1), y=c(5, 5))
-df2 <- data.frame(x=c(min_sum_of_z+0.1, min_sum_of_z+0.1), y=c(0,5))
-df3 <- data.frame(x=c(min_sum_of_z-0.1, min_sum_of_z-0.1), y=c(0,5))
-df4 <- data.frame(x=c(min_sum_of_z-0.1, min_sum_of_z+0.1), y=c(0,0))
 simulated_z_pairs_tested_perm_i %>% 
   ggplot() +
   geom_point(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +

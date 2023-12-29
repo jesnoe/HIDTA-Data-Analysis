@@ -657,3 +657,42 @@ label_check_Jan_2020 %>% filter(perm.i_label != "Insig" & seizure_count > 8 & su
 
 
 
+GEOID_LH_to_Insig <- LISA.org$GEOID[which(LISA.org$LISA_CJan0 == "LH" & LISA.perm.i$LISA_CJan0 == "Insig")]
+LISA.org %>% filter(GEOID %in% GEOID_LH_to_Insig) %>% select(state, county)
+
+LISA_C.org.map %>% filter(Month_Year == "2020-01-01") %>% 
+  mutate(LISA_C = as.character(LISA_C)) %>% 
+  mutate(LISA_C = as.factor(ifelse(GEOID %in% GEOID_LH_to_Insig, "LH to Insig", LISA_C))) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red",
+                               "LH to Insig"="green"),
+                    na.value = "white") +
+  labs(fill = "", title="orignial", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_org_map_test
+
+LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01") %>% 
+  mutate(LISA_C = as.character(LISA_C)) %>% 
+  mutate(LISA_C = as.factor(ifelse(GEOID %in% GEOID_LH_to_Insig, "LH to Insig", LISA_C))) %>% 
+  ggplot(mapping = aes(long, lat, group = group, fill=LISA_C)) +
+  geom_polygon(color = "#000000", linewidth = .05) +
+  scale_fill_manual(values = c("Insig"="grey60",
+                               "LL"="blue",
+                               "LH"="steelblue",
+                               "HL"="orange",
+                               "HH"="red",
+                               "LH to Insig"="green"),
+                    na.value = "white") +
+  labs(fill = "", title="permute i", x="", y="") + 
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) -> LISA_C_perm.i_map_test
+
+LH_to_Insig_check <- grid.arrange(LISA_C_org_map_test, LISA_C_perm.i_map_test, ncol=2)
+ggsave("LH to Insig check.pdf", plot=LH_to_Insig_check, width=30, height=10, units="cm")

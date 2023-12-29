@@ -42,7 +42,8 @@ all_counts <- left_join(unique(coordinate.HIDTA[,c(7, 12, 14, 15)]), seizures, b
   complete(GEOID, Year, Month) %>% 
   filter(!is.na(GEOID) & !is.na(Year) & !is.na(Month))
 
-all_counts <- all_counts %>% mutate(Year_Month=paste(month(Month, label=T), Year, sep="_"))
+all_counts <- all_counts %>% mutate(Year_Month=paste(month(Month, label=T), Year, sep="_"),
+                                    GEOID=as.numeric(GEOID))
 all_counts_missingness <- all_counts %>% select(-Year, -Month) %>% 
   pivot_wider(names_from=Year_Month, values_from=count) %>% 
   arrange(GEOID)
@@ -80,8 +81,8 @@ all_cocaine <- all_cocaine %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDT
 all_cocaine[,5:52][is.na(all_cocaine[,5:52])] <- 0
 all_cocaine %>% filter(is.na(GEOID))
 }
-all_cocaine # 1491 counties in total.
-# write.csv(all_cocaine, "all_cocaine count HIDTA (12-17-2023).csv", row.names=F)
+all_cocaine # 1518 counties in total.
+# write.csv(all_cocaine, "all_cocaine count HIDTA (06-21-2023).csv", row.names=F)
 
 # crack count
 {
@@ -109,8 +110,8 @@ grep("Dec_2021", names(crack)) # 52
 crack <- crack %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDTA))
 crack[,5:52][is.na(crack[,5:52])] <- 0
 crack %>% filter(is.na(GEOID))
-crack # 1491 counties in total.
-# write.csv(crack, "cocaine crack count HIDTA (12-17-2023).csv", row.names=F)
+crack # 1400 counties in total.
+# write.csv(crack, "cocaine crack count HIDTA (12-18-2023).csv", row.names=F)
 
 # other cocaine count
 {
@@ -144,7 +145,6 @@ cocaine # 1518 counties in total.
   crack <- crack %>% mutate(Month2=month(Month, label=T))
   crack <- crack %>% group_by(state_name, county, Year, Month2) %>%
     summarise(weight=sum(Quantity)) %>%
-    ungroup() %>% 
     complete(state_name, county, Year, Month2) %>% 
     pivot_wider(names_from=c(Month2, Year), names_sep="_", values_from=weight)
   crack <- crack[, c(1:2, match(cal_order, names(crack)))]
@@ -160,8 +160,8 @@ grep("Dec_2021", names(crack)) # 52
 crack <- crack %>% filter(GEOID %in% non_missing_GEOID | !is.na(HIDTA))
 crack[,5:52][is.na(crack[,5:52])] <- 0
 crack %>% filter(is.na(GEOID))
-crack # 1491 counties in total.
-# write.csv(crack, "cocaine crack weight HIDTA (12-17-2023).csv", row.names=F)
+crack # 1459 counties in total.
+# write.csv(crack, "cocaine crack weight HIDTA (02-21-2023).csv", row.names=F)
 
 # other cocaine weight
 {
