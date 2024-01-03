@@ -273,15 +273,20 @@ Boston_centroid <- LISA_C.org.map %>% filter(state == "Massachusetts" & county =
 Chicago_centroid <- LISA_C.org.map %>% filter(state == "Illinois" & county == "Cook County") %>% select(long, lat) %>% apply(2, mean)
 Detroit_centroid <- LISA_C.org.map %>% filter(state == "Michigan" & county == "Wayne County") %>% select(long, lat) %>% apply(2, mean)
 Pittsburgh_centroid <- LISA_C.org.map %>% filter(state == "Pennsylvania" & county == "Allegheny County") %>% select(long, lat) %>% apply(2, mean)
+VA_WV_entroid <- LISA_C.org.map %>% filter(state == "Virginia" & GEOID == 51161| # Roanoke County
+                                           state == "West Virginia" & GEOID %in% c(54055, 54081) ) %>% select(long, lat) %>% apply(2, mean) # Mercer, Raleigh County
 
-NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid) %>% as.data.frame
-NE_cities_centroid$LISA_C <- rep("1",5)
+LISA_C.perm.i %>% filter(state %in% c("Virginia", "West Virginia") & `2020-01` != "Insig") %>% select(state,county,GEOID,`2020-01`)
+
+NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid, VA_WV_entroid) %>% as.data.frame
+NE_cities_centroid$LISA_C <- rep("1",6)
 
 NE_cities_centroid_1 <- NE_cities_centroid[1,-3]
 NE_cities_centroid_2 <- NE_cities_centroid[2,-3]
 NE_cities_centroid_3 <- NE_cities_centroid[3,-3]
 NE_cities_centroid_4 <- NE_cities_centroid[4,-3]
 NE_cities_centroid_5 <- NE_cities_centroid[5,-3]
+NE_cities_centroid_6 <- NE_cities_centroid[6,-3]
 
 NE_cities_centroid_1 <- rbind(NE_cities_centroid_1, NE_cities_centroid_1 + 0.9*c(5,0))
 NE_cities_centroid_2 <- rbind(NE_cities_centroid_2, NE_cities_centroid_2 + 0.8*c(2,1))
@@ -329,6 +334,10 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
   geom_text(data=NE_cities_centroid[5,],
             aes(x=long, y=lat, group=LISA_C, label="5"),
             nudge_y = 4,
+            size=5) +
+  geom_text(data=NE_cities_centroid[6,],
+            aes(x=long, y=lat, group=LISA_C, label="6"),
+            nudge_x = 0.2,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -425,6 +434,10 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
   geom_text(data=NE_cities_centroid[5,],
             aes(x=long, y=lat, group=LISA_C, label="5"),
             nudge_y = 4,
+            size=5) +
+  geom_text(data=NE_cities_centroid[6,],
+            aes(x=long, y=lat, group=LISA_C, label="6"),
+            nudge_x = 0.2,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
