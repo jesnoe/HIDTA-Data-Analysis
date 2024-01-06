@@ -1,6 +1,5 @@
 # setwd("/Users/euseongjang/Documents/R")
 # setwd("C:/Users/gkfrj/Documents/R")
-library(fpp2)
 library(spdep)
 library(readxl)
 library(scales)
