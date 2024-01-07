@@ -35,7 +35,7 @@
   nrow(crack)
   seizures.crack <- crack[, 5:52]
   
-  crack.rel <- read.csv("crack counts KNN5 R codes 999 two-sided relative (02-21-2023).csv") %>% as_tibble
+  crack.rel <- read.csv("crack counts KNN5 R codes 999 two-sided original (08-01-2023).csv") %>% as_tibble
   crack.rel.sig <- crack.rel %>%
     select(state:GEOID, Jan_2020, LISA_IJan0, LISA_PJan0, LISA_CJan0) %>%
     filter(LISA_CJan0 != 0) %>%
