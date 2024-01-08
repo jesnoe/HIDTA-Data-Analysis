@@ -10,7 +10,7 @@ library(lubridate)
 
 # Setting the same neighborhood as HIDTA data we used in our paper (crack cocaine seizures in January 2020)
 {
-  crack.counties <- read.csv("Data/HIDTA crack cocaine counties.csv") %>% as_tibble
+  crack.counties <- read.csv("/root/capsule/data/HIDTA crack cocaine counties.csv") %>% as_tibble
   counties.obs <- counties
   names(counties.obs)[7] <- "GEOID"
   counties.obs <- counties.obs %>% rename(state=state_name, county=county_name)
@@ -50,7 +50,7 @@ simulated_z_sum %>%
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
   ) -> plot_z_norm_simulation_data
-ggsave("Result/scatter plot of z norm simulation data.pdf", plot_z_norm_simulation_data, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/scatter plot of z norm simulation data.pdf", plot_z_norm_simulation_data, width=15, height=10, units="cm")
 
 
 lbs_sim <- c("L", "H")
@@ -172,7 +172,7 @@ simulated_z_norm_10_5_0.05 %>%
                                 "Obs."="black")) +
   geom_vline(xintercept=c(sum_of_z_neigh_LB, sum_of_z_neigh_UB)) +
   geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_norm_0.05_z_plot
-ggsave("Result/z norm 0.05 Exact Significance Region (Standard).pdf", z_norm_0.05_z_plot, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z norm 0.05 Exact Significance Region (Standard).pdf", z_norm_0.05_z_plot, width=15, height=10, units="cm")
 
 simulated_z_norm_10_5_0.05_perm.i <- simulated_z_norm(z_data=simulated_z_sum, alpha_sim=0.05, listw=listw_k, nsim_=9999, perm_z=T)
 simulated_z_norm_10_5_0.05_perm.i %>% 
@@ -190,7 +190,7 @@ simulated_z_norm_10_5_0.05_perm.i %>%
                                 "HH"="red",
                                 "Obs."="black")) +
   geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_norm_0.05_z_plot_perm.i
-ggsave("Result/z norm 0.05 Exact Significance Region (Permute i).pdf", z_norm_0.05_z_plot_perm.i, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z norm 0.05 Exact Significance Region (Permute i).pdf", z_norm_0.05_z_plot_perm.i, width=15, height=10, units="cm")
 
 
 # Results for a gamma simulation data
@@ -249,7 +249,7 @@ simulated_z_gamma_sum %>%
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i])
   ) -> plot_z_gamma_simulation_data
-ggsave("Result/scatter plot of z zero-inflated gamma simulation data.pdf", plot_z_gamma_simulation_data, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/scatter plot of z zero-inflated gamma simulation data.pdf", plot_z_gamma_simulation_data, width=15, height=10, units="cm")
 
 zero_gamma_significance_region <- function(z_data, lz_gamma, alpha_sim, listw, nsim_, perm_z=F, moderate=F) {
   z_gamma <- z_data$z
@@ -321,7 +321,7 @@ simulated_z_gamma_standard %>%
                                 "Obs."="black")) +
   geom_vline(xintercept=gamma_upper_tail-5*xx_gamma) +
   geom_point(data=simulated_z_gamma_sum, aes(x=lz, y=z, color="Obs.")) -> z_gamma_standard_plot
-ggsave("Result/z gamma Exact Significance Region (Standard).pdf", z_gamma_standard_plot, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z gamma Exact Significance Region (Standard).pdf", z_gamma_standard_plot, width=15, height=10, units="cm")
 
 simulated_z_gamma_perm.i <- zero_gamma_significance_region(z_data=simulated_z_gamma_sum, alpha_sim=0.05, listw=listw_k, nsim_=9999, perm_z=T)
 simulated_z_gamma_perm.i %>% 
@@ -339,7 +339,7 @@ simulated_z_gamma_perm.i %>%
                                 "HH"="red",
                                 "Obs."="black")) +
   geom_point(data=simulated_z_gamma_sum, aes(x=lz, y=z, color="Obs.")) -> z_gamma_perm.i_plot
-ggsave("Result/z gamma Exact Significance Region (Permute i).pdf", z_gamma_perm.i_plot, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z gamma Exact Significance Region (Permute i).pdf", z_gamma_perm.i_plot, width=15, height=10, units="cm")
 
 simulated_z_gamma_moderate <- zero_gamma_significance_region(z_data=simulated_z_gamma_sum, alpha_sim=0.05, listw=listw_k, nsim_=9999, perm_z=F, moderate=T)
 simulated_z_gamma_moderate %>% 
@@ -360,7 +360,7 @@ simulated_z_gamma_moderate %>%
                                 "Obs."="black")) +
   geom_vline(xintercept=gamma_upper_tail-5*xx_gamma) +
   geom_point(data=simulated_z_gamma_sum, aes(x=lz, y=z, color="Obs.")) -> z_gamma_moderate_plot
-ggsave("Result/z gamma Exact Significance Region (Moderate Label).pdf", z_gamma_moderate_plot, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z gamma Exact Significance Region (Moderate Label).pdf", z_gamma_moderate_plot, width=15, height=10, units="cm")
 
 simulated_z_gamma_combined <- zero_gamma_significance_region(z_data=simulated_z_gamma_sum, alpha_sim=0.05, listw=listw_k, nsim_=9999, perm_z=T, moderate=T)
 simulated_z_gamma_combined %>% 
@@ -380,4 +380,4 @@ simulated_z_gamma_combined %>%
                                 "HH"="red",
                                 "Obs."="black")) +
   geom_point(data=simulated_z_gamma_sum, aes(x=lz, y=z, color="Obs.")) -> z_gamma_combined_plot
-ggsave("Result/z gamma Exact Significance Region (Combined).pdf", z_gamma_combined_plot, width=15, height=10, units="cm")
+ggsave("/root/capsule/results/z gamma Exact Significance Region (Combined).pdf", z_gamma_combined_plot, width=15, height=10, units="cm")
