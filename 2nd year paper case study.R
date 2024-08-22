@@ -1,5 +1,5 @@
 # setwd("/Users/euseongjang/Documents/R")
-# setwd("C:/Users/gkfrj/Documents/R")
+# setwd("C:/Users/gkfrj/Documents/R/Improved LISA")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -37,7 +37,7 @@ nb_crack <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
 nb.obj.crack <- nb2listw(nb_crack, style="B")
 
 alpha <- 0.05
-nperm <- 9999
+nperm <- 999
 
 ## For crack
 crack <- cbind(crack, matrix(0, nrow(crack), 48*3)) %>% as_tibble
@@ -52,19 +52,21 @@ grep("LISA_I", names(crack))[1] # 53
 
 original.MoransI <- crack
 set.seed(100)
-for (i in 1:48) {
+t1 <- Sys.time()
+# for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided")
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
   localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   original.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-}
-
+# }
+t2 <- Sys.time()
 # write.csv(original.MoransI, "crack counts KNN5 R codes 999 two-sided original (08-01-2023).csv", row.names=F)
 
 moderate.MoransI <- crack
 x.bar_p <- mean(moderate.MoransI$Jan_2018)
 set.seed(100)
+t3 <- Sys.time()
 for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", moderate=T)
@@ -72,20 +74,21 @@ for (i in 1:48) {
   localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   moderate.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
 }
-
+t4 <- Sys.time()
 # write.csv(moderate.MoransI, "crack counts KNN5 R codes 999 two-sided moderate (08-01-2023).csv", row.names=F)
 
 perm.i.MoransI <- crack
 x.bar_p <- mean(perm.i.MoransI$Jan_2018)
 set.seed(100)
-for (i in 1:48) {
+t5 <- Sys.time()
+# for (i in 1:48) {
   seizure.crack <- t(seizures.crack)[i,]
   localM.month <- localmoran_abs(seizure.crack, nb.obj.crack, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", perm.i=T)
   localM.month$LISA_C <- as.character(localM.month$quadr_ps)
   localM.month$LISA_C <- ifelse(localM.month$`Pr(folded) Sim` <= alpha, localM.month$LISA_C, "Insig")
   perm.i.MoransI[,(LISA_I.index+3*i-3):(LISA_I.index+3*i-1)] <- localM.month[,c(1,13,7)]
-}
-
+# }
+t6 <- Sys.time()
 # write.csv(perm.i.MoransI, "crack counts KNN5 R codes 999 two-sided permute i (08-01-2023).csv", row.names=F)
 
 both.MoransI <- crack

@@ -1,5 +1,5 @@
 # setwd("/Users/euseongjang/Documents/R")
-# setwd("C:/Users/gkfrj/Documents/R")
+# setwd("C:/Users/gkfrj/Documents/R/Improved LISA")
 library(spdep)
 library(readxl)
 library(scales)

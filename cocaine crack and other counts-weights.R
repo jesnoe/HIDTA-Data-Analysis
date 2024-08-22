@@ -1,5 +1,5 @@
 # setwd("/Users/euseongjang/Documents/R")
-# setwd("C:/Users/gkfrj/Documents/R")
+# setwd("C:/Users/gkfrj/Documents/R/Improved LISA")
 library(fpp2)
 library(spdep)
 library(readxl)
@@ -12,10 +12,12 @@ library(ggbreak)
 # urbnmapr data
 unique(countydata$county_fips) # some ips have 5 digits. need to be converted into integer.
 HIDTA.dist <- read.csv("HIDTA Regions.csv", header=T) %>% as_tibble
-coordinate.HIDTA <- left_join(counties, HIDTA.dist, by=c("state_name", "county_name")) %>% filter(!(state_name %in% c("Alaska", "Hawaii", "Puerto Rico")))
+counties_sf <- get_urbn_map(map = "counties", sf = TRUE)
+coordinate.HIDTA <- left_join(counties_sf, HIDTA.dist, by=c("state_name", "county_name")) %>% filter(!(state_name %in% c("Alaska", "Hawaii", "Puerto Rico")))
+names(coordinate.HIDTA)[1] <- "GEOID"
+coordinate.HIDTA$GEOID <- as.numeric(coordinate.HIDTA$GEOID)
 coordinate.HIDTA$county_name <- str_to_title(coordinate.HIDTA$county_name)
 county_idx <- !grepl("City", coordinate.HIDTA$county_name)
-names(coordinate.HIDTA)[7] <- "GEOID"
 coordinate.HIDTA$county <- coordinate.HIDTA$county_name
 coordinate.HIDTA$county[county_idx] <- str_split(coordinate.HIDTA$county_name[county_idx], " ") %>%
   lapply(function(x) str_c(c(x[(1:(length(x)-1))]), collapse=" ") ) %>%
@@ -189,15 +191,15 @@ cocaine # 1518 counties in total.
 # write.csv(cocaine, "cocaine other weight HIDTA (02-21-2023).csv", row.names=F)
 
 # Jan 2020 crack seizure figure
+crack <- read.csv("cocaine crack count HIDTA (02-21-2023).csv") %>% as_tibble
 coordinate_map <- coordinate.HIDTA
-names(coordinate_map)[10] <- "county"
-names(coordinate_map)[12] <- "state"
+names(coordinate_map)[6] <- "state"
 
-crack.map <- left_join(coordinate_map[, c(1:2,6:7,10,12)], crack[, c(3, 5:52)], by = "GEOID")
+crack.map <- left_join(coordinate_map %>% select(GEOID, state, county, HIDTA, geometry), crack[, c(3, 5:52)], by = "GEOID")
 
-crack.map <- crack.map %>% 
-  select(long:state, Jan_2020) %>% 
-  pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts")
+# crack.map <- crack.map %>% 
+#   select(long:state, Jan_2020) %>% 
+#   pivot_longer(c(-long, -lat, -group, -GEOID, -state, -county), names_to="Month_Year", values_to="seizure_counts")
 
 crack.map %>%
   arrange(seizure_counts) %>% 
@@ -215,11 +217,11 @@ crack.map %>%
         axis.ticks.y=element_blank()) -> seizure_counts_map
 unique(ggplot_build(seizure_counts_map)$data[[1]]$fill)
 
-
 crack.map %>%
-  mutate(seizure_counts=as.factor(seizure_counts)) %>% 
-  ggplot(mapping = aes(long, lat, group = group, fill=seizure_counts)) +
-  geom_polygon(color = "#000000", linewidth = .05) +
+  ggplot() +
+  geom_sf(aes(fill=as.factor(Jan_2020)),
+          color = "#000000",
+          linewidth = .05) +
   scale_fill_manual(values=c("gray70", "#440154E6", "#450C59E6", "#45155FE6", "#461D64E6", "#46246AE6", "#452B6FE6",
                              "#44377AE6", "#433D80E6", "#414386E6", "#404988E6", "#3F4E88E6", "#3E5489E6",
                              "#3A5F8BE6", "#38658CE6", "#2B7B8DE6", "#8ED44DE6", "#FDE725E6"),
@@ -233,7 +235,7 @@ crack.map %>%
         axis.text.y=element_blank(),
         axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank()) -> seizure_counts_map
-# ggsave("crack seizure counts map Jan_2020 (gray 0).pdf", seizure_counts_map, width=18, height=16, units="cm")
+# ggsave("crack seizure counts map Jan_2020 (gray 0).pdf", seizure_counts_map, scale=1) #width=18, height=16, units="cm")
 
 crack.map %>%
   mutate(seizure_counts=log(seizure_counts+1)) %>% 
