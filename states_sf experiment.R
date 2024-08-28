@@ -49,7 +49,7 @@ counties_neighbors <- poly2nb(counties_multipoly_sf)
 counties_listw <- nb2listw(counties_neighbors, style="W", zero.policy=T)
 counties_multipoly_sf$x_sample <- sample(seizures.crack$Jan_2020, nrow(counties_multipoly_sf), replace=T)
 
-nperm <- 999
+nperm <- 9999
 t3 <- Sys.time()
 localmoran_abs(counties_multipoly_sf$x_sample, counties_listw, nsim=nperm, zero.policy=T, xx=NULL, alternative="two.sided", perm.i=T)
 t4 <- Sys.time()

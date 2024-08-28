@@ -201,9 +201,9 @@ listw_k <- nb2listw(nb_crack_k, style="B")
 lz_simul <- lag.listw(listw_k, z, zero.policy = zero.policy, NAOK = NAOK)
 max_sum_of_z <- max(lz_simul)
 min_sum_of_z <- min(lz_simul)
-simulated_z_Jan2018 <- seq(min_z, max_z, by=1)
-simulated_sum_of_z_Jan2018 <- seq(min_sum_of_z, max_sum_of_z, by=1)
-simulated_z_pairs <- merge(simulated_z_Jan2018, simulated_sum_of_z_Jan2018) %>%
+simulated_z_Jan2020 <- seq(min_z, max_z, by=1)
+simulated_sum_of_z_Jan2020 <- seq(min_sum_of_z, max_sum_of_z, by=1)
+simulated_z_pairs <- merge(simulated_z_Jan2020, simulated_sum_of_z_Jan2020) %>%
   mutate(z=x, sum_of_z_neigh=y) %>% 
   select(z, sum_of_z_neigh)
 # simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, Inf), labels = lbs_sim)
@@ -219,7 +219,8 @@ lx_qunatile$quantile <- cumsum(lx_qunatile$Freq) / sum(lx_qunatile$Freq)
 lx_qunatile #%>% write.csv("crack_Jan2020 sum of neighbors quantile.csv", row.names=F)
 
 simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 0, 2*sd(x), Inf), labels = lbs3_sim)
-simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, 36-lxx, Inf), labels = lbs3_sim)
+simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, Inf), labels = lbs_sim)
+# simulated_z_pairs$sum_of_z_neigh_label <- cut(simulated_z_pairs$sum_of_z_neigh, c(-Inf, 0, 36-lxx, Inf), labels = lbs3_sim)
 
 # Other threshold for High/Low
 # simulated_z_pairs$z_label <- cut(simulated_z_pairs$z, c(-Inf, 4-xx, Inf), labels = lbs_sim)
@@ -250,13 +251,18 @@ for (i in 1:nrow(simulated_z_pairs_tested)) {
 simulated_z_pairs_tested$LISA_C <- as.factor(simulated_z_pairs_tested$LISA_C)
 
 observed_z_sum <- data.frame(z=z, lz=lz)
+NE_states <- c("Michigan", "Illinois", "Ohio", "Indiana", "Pennsylvania", "New York", "New Hampshire", "New Jersey", "Rhode Island", "Massachusetts",
+               "Maryland", "Maine", "District of Columbia", "Delaware", "Vermont", "Virginia", "West Virginia", "Wisconsin", "Connecticut", "Kentucky")
+observed_z_sum_NE <-observed_z_sum[which(crack.rel$state %in% NE_states),]
+
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(
-    title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
+    # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i])
+    y=expression(z[i]),
+    color=""
     ) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
@@ -264,8 +270,8 @@ simulated_z_pairs_tested %>%
                                 "HL"="orange",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."))# -> crack_Jan2020_sig_region
-# ggsave("Crack Significance Region in Jan 2020.png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
+  geom_point(data=observed_z_sum_NE, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region
+# ggsave("Crack Significance Region in Jan 2020 (NE states).png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
@@ -287,8 +293,8 @@ simulated_z_pairs_tested %>%
                                 # "HM"="#f46d43",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region_extended
-# ggsave("Crack Extended Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
+  geom_point(data=observed_z_sum_NE, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region_extended
+# ggsave("Crack Extended Significance Region in Jan 2020 (NE states).png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
 # ggsave("Crack z_i Extended Permuted Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
