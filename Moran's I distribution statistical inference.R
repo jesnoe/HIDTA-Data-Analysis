@@ -256,12 +256,12 @@ NE_states <- c("Michigan", "Illinois", "Ohio", "Indiana", "Pennsylvania", "New Y
 observed_z_sum_NE <-observed_z_sum[which(crack.rel$state %in% NE_states),]
 
 simulated_z_pairs_tested %>% 
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+  ggplot(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(
     # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
     color=""
     ) +
   scale_color_manual(values = c("Insig"="grey60",
@@ -270,16 +270,16 @@ simulated_z_pairs_tested %>%
                                 "HL"="orange",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum_NE, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region
-# ggsave("Crack Significance Region in Jan 2020 (NE states).png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
+  geom_point(data=observed_z_sum, aes(y=lz, x=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region
+# ggsave("Crack Significance Region in Jan 2020 (flipped).png", crack_Jan2020_sig_region, width=13, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+  ggplot(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(color="",
     # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i])
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i])
   ) +
   scale_color_manual(breaks = c("Insig", "LL", "LM", "LH", "ML", "MM", "MH", "HL", "HM", "HH", "Obs."),
                      values = c("Insig"="grey60",
@@ -293,9 +293,9 @@ simulated_z_pairs_tested %>%
                                 # "HM"="#f46d43",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum_NE, aes(x=lz, y=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region_extended
-# ggsave("Crack Extended Significance Region in Jan 2020 (NE states).png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
-# ggsave("Crack z_i Extended Permuted Significance Region in Jan 2020.png", crack_Jan2020_sig_region_extended, width=15, height=10, units="cm")
+  geom_point(data=observed_z_sum, aes(y=lz, x=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region_extended
+# ggsave("Crack Extended Significance Region in Jan 2020 (flipped).png", crack_Jan2020_sig_region_extended, width=13, height=10, units="cm")
+# ggsave("Crack z_i Extended Permuted Significance Region in Jan 2020 (flipped).png", crack_Jan2020_sig_region_extended, width=13, height=10, units="cm")
 
 simulated_z_pairs_tested %>% 
   ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
@@ -364,6 +364,26 @@ simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, nsim_, pe
   return(simulated_z_norm_pairs_tested)
 }
 
+## plot of z vs. sum of neighbors' z
+ref <- tibble(LISA_CJan0=0:4, label=c("Insig", "HH", "LL", "LH", "HL"))
+crack.rel %>% 
+  select(state:GEOID, Jan_2020, LISA_IJan0, LISA_PJan0, LISA_CJan0) %>% 
+  mutate(z=z, sum_of_z_neigh=lz) %>% 
+  left_join(ref, by="LISA_CJan0") %>%
+  ggplot(aes(y=sum_of_z_neigh, x=z, color=label)) +
+  geom_point(size=0.7) +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
+  ) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red")) -> crack_Jan2020_z_plot 
+# ggsave("Crack Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (flipped).png", crack_Jan2020_z_plot, width=13, height=10, units="cm")
 
 # coords.all <- counties.obs %>% group_by(GEOID) %>% summarise(x=mean(long), y=mean(lat))
 # GEOIDS.all <- coords.all$GEOID
@@ -371,7 +391,7 @@ simulated_z_norm <- function(x_mean, x_sd, n_points, alpha_sim, listw, nsim_, pe
 nb_crack_k <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
 listw_k <- nb2listw(nb_crack_k, style="B")
 set.seed(5839)
-simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, nsim_=9999)
+simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, nsim_=999)
 set.seed(5839)
 simulated_z_norm_10_5_0.10 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.10, listw=listw_k, nsim_=999)
 
@@ -416,14 +436,56 @@ simulated_z_sum <- data.frame(z=z_norm, lz=lz_norm)
 sum_of_z_neigh_LB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=T)
 sum_of_z_neigh_UB <- 5*sqrt(5)*qnorm(0.05, 0, 1, lower.tail=F)
 
+set.seed(100)
+pseudo_p_of_z_norm <- localmoran_abs(z_norm, listw_k, nsim=999, zero.policy=T, xx=NULL, alternative="two.sided")
+pseudo_p_of_z_norm$z <- z_norm
+pseudo_p_of_z_norm$sum_of_z_neigh <- lz_norm
+pseudo_p_of_z_norm$label <- as.character(pseudo_p_of_z_norm$quadr_ps)
+pseudo_p_of_z_norm$label <- ifelse(pseudo_p_of_z_norm$`Pr(folded) Sim` > alpha, "Insig", pseudo_p_of_z_norm$label)
+pseudo_p_of_z_norm %>% 
+  select(z, sum_of_z_neigh, `Pr(folded) Sim`, label) %>% 
+  ggplot(aes(y=sum_of_z_neigh, x=z, color=label)) +
+  geom_point(size=0.7) +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
+  ) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red")) -> crack_z_norm_plot 
+# ggsave("z norm vs. Sum of Neighbors' (flipped).png", crack_z_norm_plot, width=13, height=10, units="cm")
+
 simulated_z_norm_10_5_0.05 %>% 
-  ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
+  ggplot(aes(y=sum_of_z_norm_neigh, x=z, color=LISA_C)) +
   geom_point() +
   labs(
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
-    color="LISA_C"
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
+  ) +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red",
+                                "Obs."="black")) +
+  geom_point(data=simulated_z_sum, aes(y=lz, x=z, color="Obs."), size=0.7) -> z_norm_0.05_z_plot
+# ggsave("z norm 0.05 Significance Region (flipped).png", z_norm_0.05_z_plot, width=13, height=10, units="cm")
+
+
+simulated_z_norm_10_5_0.05 %>% 
+  ggplot(aes(y=sum_of_z_norm_neigh, x=z, color=LISA_C)) +
+  geom_point() +
+  labs(
+    # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020",
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
   ) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
@@ -437,9 +499,9 @@ simulated_z_norm_10_5_0.05 %>%
   #                               "HL"="#fdae61",
   #                               "HH"="#d73027",
   #                               "Obs."="black")) +
-  geom_vline(xintercept=c(sum_of_z_neigh_LB, sum_of_z_neigh_UB)) +
-  geom_point(data=simulated_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_norm_0.05_z_plot
-# ggsave("z norm 0.05 Exact Significance Region in Jan 2020.png", z_norm_0.05_z_plot, width=15, height=10, units="cm")
+  geom_hline(yintercept=c(sum_of_z_neigh_LB, sum_of_z_neigh_UB)) +
+  geom_point(data=simulated_z_sum, aes(y=lz, x=z, color="Obs."), size=0.7) -> z_norm_10_5_0.05_sig_region_exact
+# ggsave("z norm 0.05 Exact Significance Region (flipped).png", z_norm_10_5_0.05_sig_region_exact, width=13, height=10, units="cm")
 
 simulated_z_norm_10_5_0.05 %>% filter(sum_of_z_norm_neigh > sum_of_z_neigh_LB & sum_of_z_norm_neigh < sum_of_z_neigh_UB) %>% 
   pull(pseudo_p)
@@ -547,22 +609,23 @@ simulated_z_pairs_tested %>%
 nb_crack_k <- knn2nb(knearneigh(coords.crack, k=5), row.names=GEOIDS.crack)
 listw_k <- nb2listw(nb_crack_k, style="B")
 set.seed(5839)
-simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, perm_z=T)
+simulated_z_norm_10_5_0.05 <- simulated_z_norm(x_mean=10, x_sd=5, n_points=n_counties, alpha_sim=0.05, listw=listw_k, nsim_=999, perm_z=T)
 
 simulated_z_norm_10_5_0.05 %>% 
-  ggplot(aes(x=sum_of_z_norm_neigh, y=z, color=LISA_C)) +
+  ggplot(aes(y=sum_of_z_norm_neigh, x=z, color=LISA_C)) +
   geom_point() +
   labs(
     # title=expression(paste("Simulated Normal Z vs. Sum of Neighbors' ", alpha, "=0.05, ", mu, "=10, ", sigma, "=5 (k=5)")),
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
   ) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
                                 "HL"="orange",
                                 "HH"="red")) -> z_norm_0.05_zi_perm_sig_region
-# ggsave("z norm 0.05 z_i Permuted Significance Region in Jan 2020.png", z_norm_0.05_zi_perm_sig_region, width=15, height=10, units="cm")
+# ggsave("z norm 0.05 z_i Permuted Significance Region (flipped).png", z_norm_0.05_zi_perm_sig_region, width=13, height=10, units="cm")
 
 # Significance regions of Chi-square random samples
 x_var <- c(seq(0.1, 0.9, by=0.1), 1:90)
@@ -649,7 +712,7 @@ simulated_z_chisq_1_0.05 %>%
     x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
     y=expression(z[i]),
   ) +
-  geom_vline(xintercept=c(chisq_sum_of_z_neigh_LB-lxx_chisq, chisq_sum_of_z_neigh_UB-lxx_chisq)) +
+  geom_vline(xintercept=c(chisq_sum_of_z_neigh_`LB`-lxx_chisq, chisq_sum_of_z_neigh_UB-lxx_chisq)) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="#4575b4",
                                 "LH"="#abd9e9",
@@ -859,7 +922,7 @@ alpha_sim <- 0.05
 crd_sim <- length(listw_k$weights[[1]])
 wts_sim <- listw_k$weights[[1]]
 
-nsim <- 9999
+nsim <- 999
 simulated_z_pairs_tested <- simulated_z_pairs
 set.seed(100)
 for (i in 1:nrow(simulated_z_pairs_tested)) {
@@ -877,22 +940,23 @@ simulated_z_pairs_tested$LISA_C <- as.factor(simulated_z_pairs_tested$LISA_C)
 observed_z_sum <- data.frame(z=z, lz=lz)
 
 simulated_z_pairs_tested %>% 
-  ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+  ggplot(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
   geom_point(size=0.9) +
   labs(
     # title=paste0("Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5, M=", nsim, ")"),
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i])
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
   ) +
-  geom_vline(xintercept=gamma_upper_tail-5*xx) +
+  geom_hline(yintercept=gamma_upper_tail-5*xx) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
                                 "HL"="orange",
                                 "HH"="red",
                                 "Obs."="black")) +
-  geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> crack_Jan2020_sig_region
-# ggsave("Crack Exact Significance Region in Jan 2020.png", crack_Jan2020_sig_region, width=15, height=10, units="cm")
+  geom_point(data=observed_z_sum, aes(y=lz, x=z, color="Obs."), size=0.7) -> crack_Jan2020_sig_region
+# ggsave("Crack Exact Significance Region in Jan 2020 (flipped).png", crack_Jan2020_sig_region, width=13, height=10, units="cm")
 
 
 # gamma_mme <- fitdist(nonzero_Jan_2020, distr = "gamma", method = "mme")

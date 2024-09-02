@@ -257,14 +257,26 @@ crack %>%
   select(GEOID, Jan_2020) %>% 
   ggplot(mapping = aes(Jan_2020)) +
   geom_histogram(bins=100) +
-  xlab("Seizure Count") +
-  xlim(-1, 95) +
-  scale_x_break(breaks=c(25, 70),
-                ticklabels=c(75,90)) +
+  labs(x="Seizure Count", y="Number of Counties") +
+  xlim(-1, 40) +
+  scale_y_break(breaks=c(60, 1380),
+                ticklabels=c(50, 1390)) +
   theme(axis.text.x.top=element_blank(),
-        axis.ticks.x.top=element_blank()) -> seizure_counts_hist
+        axis.ticks.x.top=element_blank()) -> seizure_counts_hist_1
 
-# ggsave("crack seizure counts histogram Jan 2020.png", seizure_counts_hist, width=8, height=7, units="cm")
+crack %>% 
+  select(GEOID, Jan_2020) %>% 
+  ggplot(mapping = aes(Jan_2020)) +
+  geom_histogram(bins=100) +
+  labs(x="Seizure Count", y="Number of Counties") +
+  xlim(70, 95) +
+  scale_y_break(breaks=c(60, 1380),
+                ticklabels=c(50, 1390)) +
+  theme(axis.text.x.top=element_blank(),
+        axis.ticks.x.top=element_blank()) -> seizure_counts_hist_2
+grid.arrange(seizure_counts_hist_1, seizure_counts_hist_2, ncol=2)
+
+# ggsave("crack seizure counts histogram Jan 2020.png", seizure_counts_hist, width=10, height=7, units="cm")
 
 # crack.map %>%
 #   mutate(seizure_counts=as.factor(seizure_counts)) %>% 

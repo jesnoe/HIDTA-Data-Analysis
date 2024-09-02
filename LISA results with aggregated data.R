@@ -762,8 +762,8 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F, obs=T) 
   min_sum_of_z <- min(lz_simul)
   # simulated_z <- seq(min_z, max_z, by=(max_z-min_z)/100)
   # simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=(max_sum_of_z-min_sum_of_z)/100)
-  simulated_z <- seq(min_z, max_z, by=2)
-  simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=2)
+  simulated_z <- seq(min_z, max_z, by=10)
+  simulated_sum_of_z <- seq(min_sum_of_z, max_sum_of_z, by=10)
   simulated_z_pairs <- merge(simulated_z, simulated_sum_of_z) %>%
     mutate(z=x, sum_of_z_neigh=y) %>% 
     select(z, sum_of_z_neigh)
@@ -836,12 +836,13 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F, obs=T) 
   observed_z_sum <- data.frame(z=z, lz=lz)
   if (obs) {
     simulated_z_pairs_tested %>% 
-      ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+      ggplot(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
       geom_point(size=0.5) +
       labs(
-        title=paste0(data_period, " (k=5, M=", nsim, ")"),
-        x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-        y=expression(z[i])
+        # title=paste0(data_period, " (k=5, M=", nsim, ")"),
+        y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+        x=expression(z[i]),
+        color=""
       ) +
       scale_color_manual(values = c("Insig"="grey60",
                                     "LL"="blue",
@@ -849,15 +850,16 @@ sig_region <- function(x, listw, data_period, nsim, alpha_sim, perm.i=F, obs=T) 
                                     "HL"="orange",
                                     "HH"="red",
                                     "Obs."="black")) +
-      geom_point(data=observed_z_sum, aes(x=lz, y=z, color="Obs.")) -> z_sig_region
+      geom_point(data=observed_z_sum, aes(y=lz, x=z, color="Obs.")) -> z_sig_region
   }else{
     simulated_z_pairs_tested %>% 
-      ggplot(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+      ggplot(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
       geom_point(size=0.9) +
       labs(
-        title=paste0(data_period, " (k=5, M=", nsim, ")"),
-        x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-        y=expression(z[i])
+        # title=paste0(data_period, " (k=5, M=", nsim, ")"),
+        y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+        x=expression(z[i]),
+        color=""
       ) +
       scale_color_manual(values = c("Insig"="grey60",
                                     "LL"="blue",
@@ -875,10 +877,10 @@ org_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data
 perm.i_sig_region_4years <- sig_region(x=seizure.crack_4years, listw=nb.obj.crack, data_period="2018-2021", nsim=999, alpha_sim=0.05, perm.i=T, obs=F)
 perm.i_sig_region_2019 <- sig_region(x=seizure.crack_2019, listw=nb.obj.crack, data_period="2019", nsim=999, alpha_sim=0.05, perm.i=T, obs=F)
 perm.i_sig_region_2020 <- sig_region(x=seizure.crack_2020, listw=nb.obj.crack, data_period="2020", nsim=999, alpha_sim=0.05, perm.i=T)
-# ggsave("Aggregated LISA Results/Crack Significance Region Original in 2018-2021.png", org_sig_region_4years, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack Significance Region Original in 2018-2021 (flipped).png", org_sig_region_4years, width=13, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Original in 2019.png", org_sig_region_2019, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Original in 2020.png", org_sig_region_2020, width=15, height=10, units="cm")
-# ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2018-2021.png", perm.i_sig_region_4years, width=15, height=10, units="cm")
+# ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2018-2021 (flipped).png", perm.i_sig_region_4years, width=13, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2019.png", perm.i_sig_region_2019, width=15, height=10, units="cm")
 # ggsave("Aggregated LISA Results/Crack Significance Region Permute i in 2020.png", perm.i_sig_region_2020, width=15, height=10, units="cm")
 

@@ -236,7 +236,7 @@ alpha_sim <- 0.05
 crd_sim <- length(listw_k$weights[[1]])
 wts_sim <- listw_k$weights[[1]]
 
-nsim <- 9999
+nsim <- 999
 simulated_z_pairs_tested <- simulated_z_pairs
 set.seed(100)
 for (i in 1:nrow(simulated_z_pairs_tested)) {
@@ -295,19 +295,48 @@ simulated_z_pairs_tested %>%
                                 "HL"="orange",
                                 "HH"="red")) -> crack_Jan2020_zi_sig_region
 # ggsave("Crack z_i Significance Region in Jan 2020 (zoom).png", crack_Jan2020_zi_sig_region, width=12, height=8, units="cm")
+  ## flipped
+df0 <- data.frame(y=min_sum_of_z, x=1)
+df1 <- data.frame(y=c(upper_bound-3, upper_bound+0.5), x=c(2,2))
+df2 <- data.frame(y=c(upper_bound+0.5, upper_bound+0.5), x=c(2,-3))
+df3 <- data.frame(y=c(upper_bound-3, upper_bound-3), x=c(2,-3))
+df4 <- data.frame(y=c(upper_bound-3, upper_bound+0.5), x=c(-3,-3))
+simulated_z_pairs_tested %>% 
+  ggplot() +
+  geom_point(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
+  geom_point(data=df0, aes(x=x, y=y),
+             shape=1, size=6) +
+  geom_line(data=df1, aes(x=x, y=y)) +
+  geom_line(data=df2, aes(x=x, y=y)) +
+  geom_line(data=df3, aes(x=x, y=y)) +
+  geom_line(data=df4, aes(x=x, y=y)) +
+  labs(color="",
+       # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
+       y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+       x=expression(z[i]),
+  ) +
+  # geom_text(aes(y=-2.5, x=50, label="Minor\n island"), color="black") +
+  # geom_text(aes(y=10, x=50, label="Minor cluster"), color="black") +
+  scale_color_manual(values = c("Insig"="grey60",
+                                "LL"="blue",
+                                "LH"="steelblue",
+                                "HL"="orange",
+                                "HH"="red")) -> crack_Jan2020_zi_sig_region
+# ggsave("Crack z_i Significance Region in Jan 2020 (zoom) flipped.png", crack_Jan2020_zi_sig_region, width=12, height=8, units="cm")
 
 simulated_z_pairs_tested_perm_i %>% 
   ggplot() +
-  geom_point(aes(x=sum_of_z_neigh, y=z, color=LISA_C)) +
+  geom_point(aes(y=sum_of_z_neigh, x=z, color=LISA_C)) +
   labs(
     # title="Centered Seizure Counts vs. Sum of Neighbors' in Jan 2020 (k=5)",
-    x=expression(sum(paste(w[ij],z[j]), "j=1", N)),
-    y=expression(z[i]),
+    y=expression(sum(paste(w[ij],z[j]), "j=1", N)),
+    x=expression(z[i]),
+    color=""
   ) +
-  xlim(-5, 17.19) +
+  ylim(-5, 17.19) +
   scale_color_manual(values = c("Insig"="grey60",
                                 "LL"="blue",
                                 "LH"="steelblue",
                                 "HL"="orange",
                                 "HH"="red")) -> crack_Jan2020_zi_perm_sig_region
-# ggsave("Crack z_i Permuted Significance Region in Jan 2020 (zoom).png", crack_Jan2020_zi_perm_sig_region, width=12, height=8, units="cm")
+# ggsave("Crack z_i Permuted Significance Region in Jan 2020 (zoom) flipped.png", crack_Jan2020_zi_perm_sig_region, width=12, height=8, units="cm")
