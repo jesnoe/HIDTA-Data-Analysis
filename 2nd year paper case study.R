@@ -1,4 +1,4 @@
-# setwd("/Users/euseongjang/Documents/R")
+# setwd("C:/Users/User/Documents/R/Improved LISA")
 # setwd("C:/Users/gkfrj/Documents/R/Improved LISA")
 library(fpp2)
 library(spdep)
@@ -29,7 +29,7 @@ names(counties.obs)[7] <- "GEOID"
 counties.obs <- counties.obs %>% rename(state=state_name, county=county_name)
 counties.obs$GEOID <- as.numeric(counties.obs$GEOID)
 counties.obs <- counties.obs %>% filter(!(state %in% c("Alaska", "Hawaii")))
-coords.crack <- counties.obs %>% filter(GEOID %in% crack$GEOID) %>%
+coords.crack <- counties.obs %>% filter(GEOID %in% counties.obs$GEOID) %>%
   group_by(GEOID) %>% summarise(x=mean(long), y=mean(lat))
 GEOIDS.crack <- coords.crack$GEOID
 coords.crack <- coords.crack[,-1]
@@ -276,12 +276,12 @@ Boston_centroid <- LISA_C.org.map %>% filter(state == "Massachusetts" & county =
 Chicago_centroid <- LISA_C.org.map %>% filter(state == "Illinois" & county == "Cook County") %>% select(long, lat) %>% apply(2, mean)
 Detroit_centroid <- LISA_C.org.map %>% filter(state == "Michigan" & county == "Wayne County") %>% select(long, lat) %>% apply(2, mean)
 Pittsburgh_centroid <- LISA_C.org.map %>% filter(state == "Pennsylvania" & county == "Allegheny County") %>% select(long, lat) %>% apply(2, mean)
-VA_WV_entroid <- LISA_C.org.map %>% filter(state == "Virginia" & GEOID == 51161| # Roanoke County
+VA_WV_centroid <- LISA_C.org.map %>% filter(state == "Virginia" & GEOID == 51161| # Roanoke County
                                            state == "West Virginia" & GEOID %in% c(54055, 54081) ) %>% select(long, lat) %>% apply(2, mean) # Mercer, Raleigh County
 
 LISA_C.perm.i %>% filter(state %in% c("Virginia", "West Virginia") & `2020-01` != "Insig") %>% select(state,county,GEOID,`2020-01`)
 
-NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid, VA_WV_entroid) %>% as.data.frame
+NE_cities_centroid <- rbind(Baltimore_centroid, Boston_centroid, Chicago_centroid, Detroit_centroid, Pittsburgh_centroid, VA_WV_centroid) %>% as.data.frame
 NE_cities_centroid$LISA_C <- rep("1",6)
 
 NE_cities_centroid_1 <- NE_cities_centroid[1,-3]
@@ -296,6 +296,13 @@ NE_cities_centroid_2 <- rbind(NE_cities_centroid_2, NE_cities_centroid_2 + 0.8*c
 NE_cities_centroid_3 <- rbind(NE_cities_centroid_3, NE_cities_centroid_3 + 0.9*c(-5,0))
 NE_cities_centroid_4 <- rbind(NE_cities_centroid_4, NE_cities_centroid_4 + 0.8*c(2,1))
 NE_cities_centroid_5 <- rbind(NE_cities_centroid_5, NE_cities_centroid_5 + 0.9*c(0,4))
+NE_cities_centroid_6 <- rbind(NE_cities_centroid_6 + c(1,0), NE_cities_centroid_6 + 0.9*c(9,0))
+
+theta <- seq(0, 2*pi, length.out = 200)
+NE_cities_circle_6 <- data.frame(
+  long = NE_cities_centroid$long[6] + 1*cos(theta),
+  lat  = NE_cities_centroid$lat[6]  + 1*sin(theta)
+)
 
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>% 
   ggplot(mapping = aes(long, lat)) +
@@ -322,6 +329,15 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
             linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_6,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(
+    data = NE_cities_circle_6,
+    aes(x = long, y = lat),
+    inherit.aes = FALSE,
+    linewidth = 0.8,
+    color = "red") +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
@@ -339,8 +355,8 @@ LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>%
             nudge_y = 4,
             size=5) +
   geom_text(data=NE_cities_centroid[6,],
-            aes(x=long, y=lat, group=LISA_C, label="6"),
-            nudge_x = 0.2,
+            aes(x=long+8.5, y=lat, group=LISA_C, label="6"),
+            nudge_x = 0,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -422,6 +438,15 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
   geom_path(data=NE_cities_centroid_5,
             aes(x=long, y=lat),
             linewidth=0.3) +
+  geom_path(data=NE_cities_centroid_6,
+            aes(x=long, y=lat),
+            linewidth=0.3) +
+  geom_path(
+    data = NE_cities_circle_6,
+    aes(x = long, y = lat),
+    inherit.aes = FALSE,
+    linewidth = 0.8,
+    color = "red") +
   geom_text(data=NE_cities_centroid[c(2,4),],
             aes(x=long, y=lat, group=LISA_C, label=as.character(c(2,4))),
             nudge_x = 2, nudge_y = 1,
@@ -439,8 +464,8 @@ LISA_C.perm.i.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) 
             nudge_y = 4,
             size=5) +
   geom_text(data=NE_cities_centroid[6,],
-            aes(x=long, y=lat, group=LISA_C, label="6"),
-            nudge_x = 0.2,
+            aes(x=long+8.5, y=lat, group=LISA_C, label="6"),
+            nudge_x = 0,
             size=5) +
   theme_bw() + 
   theme(panel.grid.major = element_blank(),
@@ -497,10 +522,10 @@ LISA_C.both.map %>% filter(Month_Year == "2020-01-01" & state %in% NE_states) %>
         axis.text = element_blank(),
         axis.ticks = element_blank()) -> NE_both_map
 
-# ggsave("Crack_Count_NE original two-sided (Jan 2020).pdf", NE_org_map, width=15, height=10, units="cm")
-# ggsave("Crack_Count_NE moderate two-sided (Jan 2020).pdf", NE_mod_map, width=15, height=10, units="cm")
-# ggsave("Crack_Count_NE permute i two-sided (Jan 2020).pdf", NE_perm.i_map, width=15, height=10, units="cm")
-# ggsave("Crack_Count_NE combined two-sided (Jan 2020).pdf", NE_both_map, width=15, height=10, units="cm")
+# ggsave("figs for paper/Crack_Count_NE original two-sided (Jan 2020).pdf", NE_org_map, width=15, height=10, units="cm")
+# ggsave("figs for paper/Crack_Count_NE moderate two-sided (Jan 2020).pdf", NE_mod_map, width=15, height=10, units="cm")
+# ggsave("figs for paper/Crack_Count_NE permute i two-sided (Jan 2020).pdf", NE_perm.i_map, width=15, height=10, units="cm")
+# ggsave("figs for paper/Crack_Count_NE combined two-sided (Jan 2020).pdf", NE_both_map, width=15, height=10, units="cm")
 
 
 LISA_C.org.map %>% filter(Month_Year == "2020-01-01" & state == "Florida") %>% 
